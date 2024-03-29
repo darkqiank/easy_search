@@ -76,6 +76,7 @@ class AsyncClient:
                 raise TimeoutException(f"{url} {type(ex).__name__}: {ex}") from ex
             raise ClientSearchException(f"{url} {type(ex).__name__}: {ex}") from ex
         # logger.debug(f"_aget_url() {resp.url} {resp.status_code} {resp.elapsed:.2f} {len(resp_content)}")
+        print(f"_aget_url() {resp.url} {resp.status_code} {resp.elapsed:.2f} {len(resp_content)}")
         if resp.status_code in (200, 302):
             return resp_content
         self._exception_event.set()

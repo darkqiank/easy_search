@@ -1,18 +1,15 @@
 from engines.client import Client
 from lxml import etree
-from urllib.parse import urlparse, parse_qs
-from engines.exceptions import ClientSearchException
 from typing import Dict, List, Optional, Any
 from fastapi.responses import HTMLResponse
-import asyncio
-from itertools import islice
 from engines.utils import _normalize, _normalize_url, json_loads
 
 
 class BING(Client):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._asession.headers["Referer"] = "https://cn.bing.com/"
+        self._asession.headers["Referer"] = "https://www.bing.com/"
+        self._asession.headers["Accept-Language"] = "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6"
 
     def text(self, *args: Any, **kwargs: Any) -> Any:
         return self._run_async_in_thread(self._text_api(*args, **kwargs))
@@ -20,17 +17,21 @@ class BING(Client):
     async def _text_api(
             self,
             keywords: str
-    ) -> List[Dict[str, str]]:
+    ) -> Any:
         # -> HTMLResponse
         # -> List[Dict[str, str]]:
         assert keywords, "keywords is mandatory"
 
         params = {
             "q": keywords,
+            "setmkt": "wt-wt",
+            # "mkt" : "wt-wt",
+            # "mkt": "zh-CN"
         }
-        resp_content = await self._aget_url("GET", "https://cn.bing.com/search", params=params)
+        resp_content = await self._aget_url("GET", "https://www.bing.com/search", params=params)
         # 解析HTML
         # return HTMLResponse(resp_content)
+
         html = etree.HTML(resp_content.decode('utf-8'))
         # 用于存储提取的数据
         extracted_data = []
@@ -42,7 +43,8 @@ class BING(Client):
             # 提取网站地址
             href = item.xpath('.//a[@class="tilk"]/@href')
             # 提取简述
-            body = item.xpath('.//p[@class="b_lineclamp4 b_algoSlug"]/text()')
+            # body = item.xpath('.//div[@class="b_lineclamp4 b_algoSlug"]/text()')
+            body = item.xpath('.//p[starts-with(@class, "b_lineclamp")]/text()')
 
             # 将提取的数据存储为字典
             data = {
