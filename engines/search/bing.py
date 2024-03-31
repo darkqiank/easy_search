@@ -3,6 +3,7 @@ from lxml import etree
 from typing import Dict, List, Optional, Any
 from fastapi.responses import HTMLResponse
 from engines.utils import _normalize, _normalize_url, json_loads
+from engines.exceptions import ClientSearchException
 
 
 class BING(Client):
@@ -29,33 +30,36 @@ class BING(Client):
             # "mkt": "zh-CN"
         }
         resp_content = await self._aget_url("GET", "https://www.bing.com/search", params=params)
+        # print(resp_content.decode('utf-8'))
         # 解析HTML
         # return HTMLResponse(resp_content)
 
         html = etree.HTML(resp_content.decode('utf-8'))
         # 用于存储提取的数据
         extracted_data = []
-        items = html.xpath('//li[contains(@class, "b_algo")]')
-        # print(items)
-        for item in items:
-            # 提取标题
-            title = item.xpath('.//h2[1]//text()')
-            # 提取网站地址
-            href = item.xpath('.//a[@class="tilk"]/@href')
-            # 提取简述
-            # body = item.xpath('.//div[@class="b_lineclamp4 b_algoSlug"]/text()')
-            body = item.xpath('.//p[starts-with(@class, "b_lineclamp")]/text()')
+        if html is not None:
+            items = html.xpath('//li[contains(@class, "b_algo")]')
+            print(items)
+            for item in items:
+                # 提取标题
+                title = item.xpath('.//h2[1]//text()')
+                # 提取网站地址
+                href = item.xpath('.//a[@class="tilk"]/@href')
+                # 提取简述
+                # body = item.xpath('.//div[@class="b_lineclamp4 b_algoSlug"]/text()')
+                body = item.xpath('.//p[starts-with(@class, "b_lineclamp")]//text()')
 
-            # 将提取的数据存储为字典
-            data = {
-                "title": _normalize(title[0]) if title else "标题缺失",
-                "href": _normalize_url(href[0]) if href else "链接缺失",
-                "body": _normalize(body[0]).strip() if body else "简述缺失",
-            }
+                # 将提取的数据存储为字典
+                data = {
+                    "title": _normalize(title[0]) if title else "标题缺失",
+                    "href": _normalize_url(href[0]) if href else "链接缺失",
+                    "body": "".join([_normalize(b) for b in body]) if body else "简述缺失"
+                }
 
-            extracted_data.append(data)
-
-        return extracted_data
+                extracted_data.append(data)
+            return extracted_data
+        else:
+            raise ClientSearchException("Search result is None!")
 
         # results = []
         #
