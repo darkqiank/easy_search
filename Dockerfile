@@ -14,4 +14,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 EXPOSE 5003
 
 # 在容器启动时运行app.py
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "5003", "-w", "4"]
+#CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "5003"]
+CMD ["gunicorn", "-w", "4", "-k", "uvicorn.workers.UvicornWorker", "-b", "0.0.0.0:5003", "main:app"]
