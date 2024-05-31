@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException
 
-from engines import DDGS, BING, GITHUB
+from engines import DDGS, BING, GITHUB, VT
 from typing import Optional
 import os
 
@@ -37,6 +37,17 @@ async def search_github(q: str, l: Optional[str] = 'cn-zh', m: Optional[int] = 1
         with GITHUB(proxies=proxy_url,
                     timeout=20) as github:
             res = github.text(keywords=q,)
+            return res
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/search/vt/")
+async def search_github(q: str):
+    proxy_url = os.getenv('PROXY_URL', None)  # 默认值是你原来硬编码的代理路径
+    try:
+        with VT(proxies=proxy_url, timeout=30) as vt:
+            res = vt.api(q)
             return res
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

@@ -15,9 +15,14 @@ class Client(AsyncClient):
             headers: Optional[Dict[str, str]] = None,
             proxies: Union[Dict[str, str], str, None] = None,
             timeout: Optional[int] = 10,
+            retries: Optional[int] = 3,
+            delay: Optional[int] = 1,
+            backoff: Optional[int] = 2
     ) -> None:
         self._exit_done = False  # 确保最先设置此属性
-        super().__init__(headers=headers, proxies=proxies, timeout=timeout)
+        super().__init__(headers=headers, proxies=proxies, timeout=timeout,
+                         retries=retries, delay=delay, backoff=backoff
+                         )
 
     def __enter__(self) -> "Client":
         return self

@@ -1,8 +1,9 @@
 click==8.1.7
-curl_cffi==0.6.2
+curl_cffi==0.6.4
 fastapi==0.110.0
 lxml==5.1.0
 orjson==3.10.0
 pytest==8.1.1
 uvicorn
 gunicorn
+tldextract

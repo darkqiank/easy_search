@@ -20,7 +20,7 @@ class DDGS(Client):
     async def _get_preload_params(self, keywords: str, payload: dict) -> dict:
         """Get vqd value for a search query."""
         resp_content = await self._aget_url("POST", "https://duckduckgo.com",
-                                            data=payload)
+                                            data=payload, stream=True)
         # 解析HTML字符串
         tree = etree.HTML(resp_content)
         href = tree.xpath('//*[@id="deep_preload_link"]/@href')
@@ -78,7 +78,7 @@ class DDGS(Client):
             priority = page * 100
             params["s"] = f"{s}"
             # print(payload)
-            resp_content = await self._aget_url("GET", "https://links.duckduckgo.com/d.js", params=params)
+            resp_content = await self._aget_url("GET", "https://links.duckduckgo.com/d.js", params=params, stream=True)
             page_data = _text_extract_json(resp_content, keywords)
 
             for row in page_data:
