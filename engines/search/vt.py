@@ -99,7 +99,12 @@ class VT(Client):
         async def _analyse(_ip) -> None:
             url = f'https://www.virustotal.com/ui/ip_addresses/{_ip}'
             res = await self._aget_url("GET", url, stream=True, headers=random_vt_ua_headers())
-            report['analyse'] = orjson.loads(res)
+            res_json = orjson.loads(res)
+            filtered_results = {key: value for key, value in res_json["data"]["attributes"]["last_analysis_results"].items() if value["category"] in ["suspicious", "malicious"]}
+            print(filtered_results)
+            # 将过滤后的结果更新到原始JSON中
+            res_json["data"]["attributes"]["last_analysis_results"] = filtered_results
+            report['analyse'] = res_json
 
         async def _resolutions(_ip) -> None:
             url = f'https://www.virustotal.com/ui/ip_addresses/{_ip}/resolutions'
@@ -109,12 +114,25 @@ class VT(Client):
         async def _referrer_files(_ip) -> None:
             url = f'https://www.virustotal.com/ui/ip_addresses/{_ip}/referrer_files'
             res = await self._aget_url("GET", url, stream=True, headers=random_vt_ua_headers())
-            report['referrer_files'] = orjson.loads(res)
+            res_json = orjson.loads(res)
+            for data in res_json.get("data", []):
+                data["attributes"]["pe_info"] = None
+                filtered_results = {key: value for key, value in
+                                    data["attributes"]["last_analysis_results"].items() if
+                                    value["category"] in ["suspicious", "malicious"]}
+                data["attributes"]["last_analysis_results"] = filtered_results
+            report['referrer_files'] = res_json
 
         async def _communicating_files(_ip) -> None:
             url = f'https://www.virustotal.com/ui/ip_addresses/{_ip}/communicating_files'
             res = await self._aget_url("GET", url, stream=True, headers=random_vt_ua_headers())
-            report['communicating_files'] = orjson.loads(res)
+            res_json = orjson.loads(res)
+            for data in res_json.get("data", []):
+                filtered_results = {key: value for key, value in
+                                    data["attributes"]["last_analysis_results"].items() if
+                                    value["category"] in ["suspicious", "malicious"]}
+                data["attributes"]["last_analysis_results"] = filtered_results
+            report['communicating_files'] = res_json
 
         tasks = [_analyse(ip), _resolutions(ip), _referrer_files(ip), _communicating_files(ip)]
         await asyncio.gather(*tasks)
