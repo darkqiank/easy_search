@@ -68,6 +68,7 @@ class VT(Client):
             res = await self._aget_url("GET", url, stream=True, headers=random_vt_ua_headers())
             res_json = orjson.loads(res)
             for data in res_json.get("data", []):
+                data["attributes"]["pe_info"] = None
                 filtered_results = {key: value for key, value in
                                     data["attributes"]["last_analysis_results"].items() if
                                     value["category"] in ["suspicious", "malicious"]}
@@ -128,6 +129,7 @@ class VT(Client):
             res = await self._aget_url("GET", url, stream=True, headers=random_vt_ua_headers())
             res_json = orjson.loads(res)
             for data in res_json.get("data", []):
+                data["attributes"]["pe_info"] = None
                 filtered_results = {key: value for key, value in
                                     data["attributes"]["last_analysis_results"].items() if
                                     value["category"] in ["suspicious", "malicious"]}
