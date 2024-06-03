@@ -22,7 +22,7 @@ def retry(exceptions, retries=3, delay=1, backoff=2):
                 except exceptions as e:
                     attempt += 1
                     if attempt == retries:
-                        raise
+                        raise ClientSearchException(f"重试错误...{type(e).__name__}: {e}")
                     await asyncio.sleep(current_delay)
                     current_delay *= backoff
         return wrapper

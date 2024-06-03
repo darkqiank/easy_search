@@ -40,9 +40,16 @@ class VT(Client):
             url = f'https://www.virustotal.com/ui/domains/{dm}'
             res = await self._aget_url("GET", url, stream=True, headers=random_vt_ua_headers())
             res_json = orjson.loads(res)
-            filtered_results = {key: value for key, value in res_json["data"]["attributes"]["last_analysis_results"].items() if value["category"] in ["suspicious", "malicious"]}
-            print(filtered_results)
-            # 将过滤后的结果更新到原始JSON中
+            # 获取分析结果，如果键不存在则返回一个空字典
+            last_analysis_results = res_json.get("data", {}).get("attributes", {}).get("last_analysis_results", {})
+            # 过滤结果
+            filtered_results = {key: value for key, value in last_analysis_results.items() if
+                                value.get("category") in ["suspicious", "malicious"]}
+            # 将过滤后的结果更新到原始JSON中，确保所有中间键都存在
+            if "data" not in res_json:
+                res_json["data"] = {}
+            if "attributes" not in res_json["data"]:
+                res_json["data"]["attributes"] = {}
             res_json["data"]["attributes"]["last_analysis_results"] = filtered_results
             report['analyse'] = res_json
 
@@ -56,9 +63,12 @@ class VT(Client):
             res = await self._aget_url("GET", url, stream=True, headers=random_vt_ua_headers())
             res_json = orjson.loads(res)
             for data in res_json.get("data", []):
+                # 确保 "attributes" 键存在，如果不存在，则跳过这个数据项
+                if "attributes" not in data:
+                    continue
                 data["attributes"]["pe_info"] = None
                 filtered_results = {key: value for key, value in
-                                    data["attributes"]["last_analysis_results"].items() if
+                                    data["attributes"].get("last_analysis_results", {}).items() if
                                     value["category"] in ["suspicious", "malicious"]}
                 data["attributes"]["last_analysis_results"] = filtered_results
             report['referrer_files'] = res_json
@@ -68,9 +78,13 @@ class VT(Client):
             res = await self._aget_url("GET", url, stream=True, headers=random_vt_ua_headers())
             res_json = orjson.loads(res)
             for data in res_json.get("data", []):
+                # 确保 "attributes" 键存在，如果不存在，则跳过这个数据项
+                if "attributes" not in data:
+                    continue
                 data["attributes"]["pe_info"] = None
+                # 确保 "last_analysis_results" 键存在，如果不存在，则跳过过滤步骤
                 filtered_results = {key: value for key, value in
-                                    data["attributes"]["last_analysis_results"].items() if
+                                    data["attributes"].get("last_analysis_results", {}).items() if
                                     value["category"] in ["suspicious", "malicious"]}
                 data["attributes"]["last_analysis_results"] = filtered_results
             report['communicating_files'] = res_json
@@ -80,8 +94,11 @@ class VT(Client):
             res = await self._aget_url("GET", url, stream=True, headers=random_vt_ua_headers())
             res_json = orjson.loads(res)
             for data in res_json.get("data", []):
+                # 确保 "attributes" 键存在，如果不存在，则跳过这个数据项
+                if "attributes" not in data:
+                    continue
                 filtered_results = {key: value for key, value in
-                                    data["attributes"]["last_analysis_results"].items() if
+                                    data["attributes"].get("last_analysis_results", {}).items() if
                                     value["category"] in ["suspicious", "malicious"]}
                 data["attributes"]["last_analysis_results"] = filtered_results
             report['subdomains'] = res_json
@@ -101,9 +118,17 @@ class VT(Client):
             url = f'https://www.virustotal.com/ui/ip_addresses/{_ip}'
             res = await self._aget_url("GET", url, stream=True, headers=random_vt_ua_headers())
             res_json = orjson.loads(res)
-            filtered_results = {key: value for key, value in res_json["data"]["attributes"]["last_analysis_results"].items() if value["category"] in ["suspicious", "malicious"]}
-            print(filtered_results)
-            # 将过滤后的结果更新到原始JSON中
+            # 获取分析结果，如果键不存在则返回一个空字典
+            print(res_json)
+            last_analysis_results = res_json.get("data", {}).get("attributes", {}).get("last_analysis_results", {})
+            # 过滤结果
+            filtered_results = {key: value for key, value in last_analysis_results.items() if
+                                value.get("category") in ["suspicious", "malicious"]}
+            # 将过滤后的结果更新到原始JSON中，确保所有中间键都存在
+            if "data" not in res_json:
+                res_json["data"] = {}
+            if "attributes" not in res_json["data"]:
+                res_json["data"]["attributes"] = {}
             res_json["data"]["attributes"]["last_analysis_results"] = filtered_results
             report['analyse'] = res_json
 
@@ -117,9 +142,13 @@ class VT(Client):
             res = await self._aget_url("GET", url, stream=True, headers=random_vt_ua_headers())
             res_json = orjson.loads(res)
             for data in res_json.get("data", []):
+                # 确保 "attributes" 键存在，如果不存在，则跳过这个数据项
+                if "attributes" not in data:
+                    continue
                 data["attributes"]["pe_info"] = None
+                # 确保 "last_analysis_results" 键存在，如果不存在，则跳过过滤步骤
                 filtered_results = {key: value for key, value in
-                                    data["attributes"]["last_analysis_results"].items() if
+                                    data["attributes"].get("last_analysis_results", {}).items() if
                                     value["category"] in ["suspicious", "malicious"]}
                 data["attributes"]["last_analysis_results"] = filtered_results
             report['referrer_files'] = res_json
@@ -130,8 +159,13 @@ class VT(Client):
             res_json = orjson.loads(res)
             for data in res_json.get("data", []):
                 data["attributes"]["pe_info"] = None
+                # 确保 "attributes" 键存在，如果不存在，则跳过这个数据项
+                if "attributes" not in data:
+                    continue
+                data["attributes"]["pe_info"] = None
+                # 确保 "last_analysis_results" 键存在，如果不存在，则跳过过滤步骤
                 filtered_results = {key: value for key, value in
-                                    data["attributes"]["last_analysis_results"].items() if
+                                    data["attributes"].get("last_analysis_results", {}).items() if
                                     value["category"] in ["suspicious", "malicious"]}
                 data["attributes"]["last_analysis_results"] = filtered_results
             report['communicating_files'] = res_json
