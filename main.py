@@ -1,10 +1,16 @@
-from fastapi import FastAPI, HTTPException
-
+from fastapi import FastAPI, HTTPException, Response
+import gzip
+import json
+import orjson
 from engines import DDGS, BING, GITHUB, VT
 from typing import Optional
 import os
 
 app = FastAPI()
+
+
+def gzip_compress(data: bytes) -> bytes:
+    return gzip.compress(data)
 
 
 @app.get("/search/bing/")
@@ -48,6 +54,12 @@ async def search_vt(q: str):
     try:
         with VT(proxies=proxy_url, timeout=30) as vt:
             res = vt.api(q)
-            return res
+            # 将 JSON 数据转换为字符串
+            json_data = orjson.dumps(res)
+            # 压缩序列化后的 JSON 字节数据
+            compressed_data = gzip_compress(json_data)
+            # 返回压缩后的数据，并设置 Content-Encoding 头
+            return Response(content=compressed_data, media_type="application/json",
+                            headers={"Content-Encoding": "gzip"})
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
