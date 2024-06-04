@@ -1,32 +1,11 @@
 import asyncio
 import logging
 from concurrent.futures import ThreadPoolExecutor
+from contextlib import suppress
 from types import TracebackType
 from typing import Dict, Optional, Union
 from .exceptions import ClientSearchException, RatelimitException, TimeoutException
 from curl_cffi import requests
-from functools import wraps
-
-
-# 重试函数装饰器
-def retry(exceptions, retries=3, delay=1, backoff=2):
-    def decorator(func):
-        @wraps(func)
-        async def wrapper(*args, **kwargs):
-            attempt = 0
-            current_delay = delay
-            while attempt < retries:
-                try:
-                    print(f"重试第{attempt}次！")
-                    return await func(*args, **kwargs)
-                except exceptions as e:
-                    attempt += 1
-                    if attempt == retries:
-                        raise ClientSearchException(f"重试错误...{type(e).__name__}: {e}")
-                    await asyncio.sleep(current_delay)
-                    current_delay *= backoff
-        return wrapper
-    return decorator
 
 
 logger = logging.getLogger("engines.AsyncClient")
@@ -39,10 +18,7 @@ class AsyncClient:
         self,
         headers: Optional[Dict[str, str]] = None,
         proxies: Union[Dict[str, str], str, None] = None,
-        timeout: Optional[int] = 10,
-        retries: Optional[int] = 3,
-        delay: Optional[int] = 1,
-        backoff: Optional[int] = 2
+        timeout: Optional[int] = 10
     ) -> None:
         self.proxies = {"all": proxies} if isinstance(proxies, str) else proxies
         self._asession = requests.AsyncSession(
@@ -53,13 +29,7 @@ class AsyncClient:
             allow_redirects=False,
         )
         self._exception_event = asyncio.Event()
-        self._exit_done = False
-        self.retries = retries
-        self.delay = delay
-        self.backoff = backoff
-        # 装饰 _aget_url 方法
-        # 不能直接在方法定义时使用实例方法作为装饰器。可以通过在类的__init__方法中应用装饰器来解决这个问题
-        self._aget_url = self.retry_decorator()(self._aget_url)
+        # self._exit_done = False
 
     async def __aenter__(self) -> "AsyncClient":
         return self
@@ -70,31 +40,26 @@ class AsyncClient:
         exc_val: Optional[BaseException] = None,
         exc_tb: Optional[TracebackType] = None,
     ) -> None:
-        await self._session_close()
+        # await self._session_close()
+        await self._asession.__aexit__(exc_type, exc_val, exc_tb)  # type: ignore
 
     def __del__(self) -> None:
-        if self._exit_done is False:
-            asyncio.create_task(self._session_close())
+        if hasattr(self, "_asession") and self._asession._closed is False:
+            with suppress(RuntimeError, RuntimeWarning):
+                asyncio.create_task(self._asession.close())  # type: ignore
+        # if self._exit_done is False:
+        #     asyncio.create_task(self._session_close())
 
-    async def _session_close(self) -> None:
-        """Close the curl-cffi async session."""
-        if self._exit_done is False:
-            await self._asession.close()
-            self._exit_done = True
-
-    def _get_executor(self, max_workers: int = 1) -> ThreadPoolExecutor:
+    @classmethod
+    def _get_executor(cls, max_workers: int = 1) -> ThreadPoolExecutor:
         """Get ThreadPoolExecutor. Default max_workers=1, because >=2 leads to a big overhead"""
-        if AsyncClient._executor is None:
-            AsyncClient._executor = ThreadPoolExecutor(max_workers=max_workers)
-        return AsyncClient._executor
+        if cls._executor is None:
+            cls._executor = ThreadPoolExecutor(max_workers=max_workers)
+        return cls._executor
 
-    def retry_decorator(self):
-        return retry(
-            (ClientSearchException, TimeoutException, RatelimitException),
-            retries=self.retries,
-            delay=self.delay,
-            backoff=self.backoff
-        )
+    @property
+    def executor(cls) -> Optional[ThreadPoolExecutor]:
+        return cls._get_executor()
 
     async def _aget_url(
         self,

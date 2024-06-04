@@ -106,7 +106,7 @@ class VT(Client):
         tasks = [_analyse(domain), _resolutions(domain), _referrer_files(domain),
                  _communicating_files(domain), _subdomains(domain)
                  ]
-        await asyncio.gather(*tasks)
+        await asyncio.gather(*tasks, return_exceptions=True)
         return report
 
     async def _ip_api(self, ip: str):
@@ -171,7 +171,7 @@ class VT(Client):
             report['communicating_files'] = res_json
 
         tasks = [_analyse(ip), _resolutions(ip), _referrer_files(ip), _communicating_files(ip)]
-        await asyncio.gather(*tasks)
+        await asyncio.gather(*tasks, return_exceptions=True)
         return report
 
     async def _file_api(self, file: str):
@@ -202,7 +202,7 @@ class VT(Client):
 
         tasks = [_analyse(file), _contacted_urls(file),
                  _contacted_domains(file), _contacted_ips(file)]
-        await asyncio.gather(*tasks)
+        await asyncio.gather(*tasks, return_exceptions=True)
         return report
 
 

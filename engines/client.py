@@ -15,14 +15,9 @@ class Client(AsyncClient):
             headers: Optional[Dict[str, str]] = None,
             proxies: Union[Dict[str, str], str, None] = None,
             timeout: Optional[int] = 10,
-            retries: Optional[int] = 3,
-            delay: Optional[int] = 1,
-            backoff: Optional[int] = 2
     ) -> None:
-        self._exit_done = False  # 确保最先设置此属性
-        super().__init__(headers=headers, proxies=proxies, timeout=timeout,
-                         retries=retries, delay=delay, backoff=backoff
-                         )
+        # self._exit_done = False  # 确保最先设置此属性
+        super().__init__(headers=headers, proxies=proxies, timeout=timeout,)
 
     def __enter__(self) -> "Client":
         return self
@@ -40,9 +35,8 @@ class Client(AsyncClient):
 
     def _close_session(self) -> None:
         """Close the curl-cffi async session."""
-        if self._exit_done is False:
-            self._run_async_in_thread(self._asession.close())
-            self._exit_done = True
+        if hasattr(self, "_asession") and self._asession._closed is False:
+            self._run_async_in_thread(self._asession.close())  # type: ignore
 
     def _run_async_in_thread(self, coro: Awaitable[Any]) -> Any:
         """Runs an async coroutine in a separate thread."""

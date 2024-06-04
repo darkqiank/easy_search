@@ -2,9 +2,7 @@ import re
 from html import unescape
 from typing import Any, Dict, List, Union
 from urllib.parse import unquote
-
 import orjson
-
 from .exceptions import ClientSearchException
 
 REGEX_STRIP_TAGS = re.compile("<.*?>")
