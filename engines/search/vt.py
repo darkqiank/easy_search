@@ -29,7 +29,7 @@ class VT(Client):
         elif is_domain(input_str):
             return self._run_async_in_thread(self._domain_api(input_str))
         else:
-            return "file"
+            return self._run_async_in_thread(self._file_api(input_str))
 
     async def _domain_api(self, domain: str):
         report = {'id': domain,

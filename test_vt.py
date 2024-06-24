@@ -2,7 +2,8 @@ from engines import VT
 import json
 import time
 
-for i in range(2):
+for i in range(50):
+    print(i)
     start_time = time.time()
     with VT(proxies="socks5://100.77.221.27:7890", timeout=20) as vt:
         res = vt.api(input_str='baidu.com')
