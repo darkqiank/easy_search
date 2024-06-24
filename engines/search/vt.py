@@ -158,7 +158,6 @@ class VT(Client):
             res = await self._aget_url("GET", url, stream=True, headers=random_vt_ua_headers())
             res_json = orjson.loads(res)
             for data in res_json.get("data", []):
-                data["attributes"]["pe_info"] = None
                 # 确保 "attributes" 键存在，如果不存在，则跳过这个数据项
                 if "attributes" not in data:
                     continue
@@ -176,7 +175,7 @@ class VT(Client):
 
     async def _file_api(self, file: str):
         report = {'id': file,
-                  'dtype': 'url'
+                  'dtype': 'files'
                   }
 
         async def _analyse(_file) -> None:
@@ -193,6 +192,7 @@ class VT(Client):
                 res_json["data"] = {}
             if "attributes" not in res_json["data"]:
                 res_json["data"]["attributes"] = {}
+            res_json["data"]["attributes"]["pe_info"] = None
             res_json["data"]["attributes"]["last_analysis_results"] = filtered_results
             report['analyse'] = res_json
 
@@ -200,56 +200,54 @@ class VT(Client):
             url = f'https://www.virustotal.com/ui/files/{_file}/contacted_urls'
             res = await self._aget_url("GET", url, stream=True, headers=random_vt_ua_headers())
             res_json = orjson.loads(res)
-            # 获取分析结果，如果键不存在则返回一个空字典
-            last_analysis_results = res_json.get("data", {}).get("attributes", {}).get("last_analysis_results", {})
-            # 过滤结果
-            filtered_results = {key: value for key, value in last_analysis_results.items() if
-                                value.get("category") in ["suspicious", "malicious"]}
-            # 将过滤后的结果更新到原始JSON中，确保所有中间键都存在
-            if "data" not in res_json:
-                res_json["data"] = {}
-            if "attributes" not in res_json["data"]:
-                res_json["data"]["attributes"] = {}
-            res_json["data"]["attributes"]["last_analysis_results"] = filtered_results
+            for data in res_json.get("data", []):
+                # 确保 "attributes" 键存在，如果不存在，则跳过这个数据项
+                if "attributes" not in data:
+                    continue
+                data["attributes"]["pe_info"] = None
+                # 确保 "last_analysis_results" 键存在，如果不存在，则跳过过滤步骤
+                filtered_results = {key: value for key, value in
+                                    data["attributes"].get("last_analysis_results", {}).items() if
+                                    value["category"] in ["suspicious", "malicious"]}
+                data["attributes"]["last_analysis_results"] = filtered_results
             report['contacted_urls'] = res_json
 
         async def _contacted_domains(_file) -> None:
             url = f'https://www.virustotal.com/ui/files/{_file}/contacted_domains'
             res = await self._aget_url("GET", url, stream=True, headers=random_vt_ua_headers())
             res_json = orjson.loads(res)
-            # 获取分析结果，如果键不存在则返回一个空字典
-            last_analysis_results = res_json.get("data", {}).get("attributes", {}).get("last_analysis_results", {})
-            # 过滤结果
-            filtered_results = {key: value for key, value in last_analysis_results.items() if
-                                value.get("category") in ["suspicious", "malicious"]}
-            # 将过滤后的结果更新到原始JSON中，确保所有中间键都存在
-            if "data" not in res_json:
-                res_json["data"] = {}
-            if "attributes" not in res_json["data"]:
-                res_json["data"]["attributes"] = {}
-            res_json["data"]["attributes"]["last_analysis_results"] = filtered_results
+            for data in res_json.get("data", []):
+                # 确保 "attributes" 键存在，如果不存在，则跳过这个数据项
+                if "attributes" not in data:
+                    continue
+                data["attributes"]["pe_info"] = None
+                # 确保 "last_analysis_results" 键存在，如果不存在，则跳过过滤步骤
+                filtered_results = {key: value for key, value in
+                                    data["attributes"].get("last_analysis_results", {}).items() if
+                                    value["category"] in ["suspicious", "malicious"]}
+                data["attributes"]["last_analysis_results"] = filtered_results
             report['contacted_domains'] = res_json
 
         async def _contacted_ips(_file) -> None:
             url = f'https://www.virustotal.com/ui/files/{_file}/contacted_ips'
             res = await self._aget_url("GET", url, stream=True, headers=random_vt_ua_headers())
             res_json = orjson.loads(res)
-            # 获取分析结果，如果键不存在则返回一个空字典
-            last_analysis_results = res_json.get("data", {}).get("attributes", {}).get("last_analysis_results", {})
-            # 过滤结果
-            filtered_results = {key: value for key, value in last_analysis_results.items() if
-                                value.get("category") in ["suspicious", "malicious"]}
-            # 将过滤后的结果更新到原始JSON中，确保所有中间键都存在
-            if "data" not in res_json:
-                res_json["data"] = {}
-            if "attributes" not in res_json["data"]:
-                res_json["data"]["attributes"] = {}
-            res_json["data"]["attributes"]["last_analysis_results"] = filtered_results
+            for data in res_json.get("data", []):
+                # 确保 "attributes" 键存在，如果不存在，则跳过这个数据项
+                if "attributes" not in data:
+                    continue
+                data["attributes"]["pe_info"] = None
+                # 确保 "last_analysis_results" 键存在，如果不存在，则跳过过滤步骤
+                filtered_results = {key: value for key, value in
+                                    data["attributes"].get("last_analysis_results", {}).items() if
+                                    value["category"] in ["suspicious", "malicious"]}
+                data["attributes"]["last_analysis_results"] = filtered_results
             report['contacted_ips'] = res_json
 
         tasks = [_analyse(file), _contacted_urls(file),
                  _contacted_domains(file), _contacted_ips(file)]
         await asyncio.gather(*tasks, return_exceptions=True)
+        print(report.keys())
         return report
 
 
