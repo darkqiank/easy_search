@@ -8,3 +8,7 @@ class RatelimitException(ClientSearchException):
 
 class TimeoutException(ClientSearchException):
     """Raised for timeout errors during API requests."""
+
+
+class NotFoundException(ClientSearchException):
+    """Raised for timeout errors during API requests."""

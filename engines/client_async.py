@@ -4,7 +4,7 @@ from concurrent.futures import ThreadPoolExecutor
 from contextlib import suppress
 from types import TracebackType
 from typing import Dict, Optional, Union
-from .exceptions import ClientSearchException, RatelimitException, TimeoutException
+from .exceptions import ClientSearchException, RatelimitException, TimeoutException, NotFoundException
 from curl_cffi import requests
 
 logger = logging.getLogger("engines.AsyncClient")
@@ -26,6 +26,7 @@ class AsyncClient:
             timeout=timeout,
             impersonate="chrome",
             allow_redirects=False,
+            verify=False
         )
         self._exception_event = asyncio.Event()
         # self._exit_done = False
@@ -76,6 +77,8 @@ class AsyncClient:
             return resp_content
         if resp.status_code in (202, 301, 403, 429):
             raise RatelimitException(f"{resp.url} {resp.status_code}")
+        if resp.status_code in (404,):
+            raise NotFoundException(f"{resp.url} {resp.status_code} not Found")
         raise ClientSearchException(f"{resp.url} {resp.status_code} return None.")
 
     async def _aget_url_stream(
@@ -100,4 +103,6 @@ class AsyncClient:
         self._exception_event.set()
         if resp.status_code in (202, 301, 403, 429):
             raise RatelimitException(f"{resp.url} {resp.status_code}")
+        if resp.status_code in (404,):
+            raise NotFoundException(f"{resp.url} {resp.status_code} not Found")
         raise ClientSearchException(f"{resp.url} {resp.status_code} return None.")

@@ -8,6 +8,8 @@ from typing import Any
 import tldextract
 import ipaddress
 
+from engines.exceptions import NotFoundException
+
 
 class VT(Client):
 
@@ -37,11 +39,14 @@ class VT(Client):
         while attempt < retries:
             try:
                 return await task_func(*args)
+            except NotFoundException as ex:
+                # print(f"Task {task_func.__name__} failed with {ex}. Not retrying due to NotFoundException.")
+                raise
             except Exception as ex:
                 attempt += 1
                 if attempt >= retries:
                     raise
-                print(f"Task {task_func} failed with {ex}. Retrying... Attempt {attempt+1}/{retries}")
+                print(f"Task {task_func.__name__} failed with {ex}. Retrying... Attempt {attempt + 1}/{retries}")
                 await asyncio.sleep(retry_wait)
 
     async def _domain_api(self, domain: str):
