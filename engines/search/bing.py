@@ -29,7 +29,7 @@ class BING(Client):
             # "mkt" : "wt-wt",
             # "mkt": "zh-CN"
         }
-        resp_content = await self._aget_url("GET", "https://www.bing.com/search", params=params, stream=True)
+        resp_content = await self._aget_url("GET", "https://www.bing.com/search", params=params)
         # print(resp_content.decode('utf-8'))
         # 解析HTML
         # return HTMLResponse(resp_content)

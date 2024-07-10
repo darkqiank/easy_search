@@ -26,7 +26,7 @@ class GITHUB(Client):
             "q": keywords,
             "type": "repositories",
         }
-        resp_content = await self._aget_url("GET", "https://github.com/search", params=params, stream=True)
+        resp_content = await self._aget_url("GET", "https://github.com/search", params=params)
         # print(resp_content.decode('utf-8'))
         # 解析HTML
         return HTMLResponse(resp_content)

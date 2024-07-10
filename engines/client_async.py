@@ -7,7 +7,6 @@ from typing import Dict, Optional, Union
 from .exceptions import ClientSearchException, RatelimitException, TimeoutException
 from curl_cffi import requests
 
-
 logger = logging.getLogger("engines.AsyncClient")
 
 
@@ -65,6 +64,24 @@ class AsyncClient:
         self,
             *args, **kwargs
     ) -> bytes:
+        try:
+            resp = await self._asession.request(*args, **kwargs)
+            resp_content: bytes = resp.content
+        except Exception as ex:
+            if "time" in str(ex).lower():
+                raise TimeoutException(f"{type(ex).__name__}: {ex}") from ex
+            raise ClientSearchException(f"{type(ex).__name__}: {ex}") from ex
+        print(f"_aget_url() {resp.url} {resp.status_code} {resp.elapsed:.2f} {len(resp_content)}")
+        if resp.status_code in (200, 302):
+            return resp_content
+        if resp.status_code in (202, 301, 403, 429):
+            raise RatelimitException(f"{resp.url} {resp.status_code}")
+        raise ClientSearchException(f"{resp.url} {resp.status_code} return None.")
+
+    async def _aget_url_stream(
+        self,
+            *args, **kwargs
+    ) -> bytes:
         if self._exception_event.is_set():
             raise ClientSearchException("Exception occurred in previous call.")
         try:
@@ -81,6 +98,6 @@ class AsyncClient:
         if resp.status_code in (200, 302):
             return resp_content
         self._exception_event.set()
-        if resp.status_code in (202, 301, 403):
+        if resp.status_code in (202, 301, 403, 429):
             raise RatelimitException(f"{resp.url} {resp.status_code}")
         raise ClientSearchException(f"{resp.url} {resp.status_code} return None.")

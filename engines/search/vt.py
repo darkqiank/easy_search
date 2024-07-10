@@ -31,6 +31,19 @@ class VT(Client):
         else:
             return self._run_async_in_thread(self._file_api(input_str))
 
+    @staticmethod
+    async def run_task_with_retries(task_func, *args, retries=3, retry_wait=2):
+        attempt = 0
+        while attempt < retries:
+            try:
+                return await task_func(*args)
+            except Exception as ex:
+                attempt += 1
+                if attempt >= retries:
+                    raise
+                print(f"Task {task_func} failed with {ex}. Retrying... Attempt {attempt+1}/{retries}")
+                await asyncio.sleep(retry_wait)
+
     async def _domain_api(self, domain: str):
         report = {'id': domain,
                   'dtype': 'domain'
@@ -103,9 +116,13 @@ class VT(Client):
                 data["attributes"]["last_analysis_results"] = filtered_results
             report['subdomains'] = res_json
 
-        tasks = [_analyse(domain), _resolutions(domain), _referrer_files(domain),
-                 _communicating_files(domain), _subdomains(domain)
-                 ]
+        tasks = [
+            self.run_task_with_retries(_analyse, domain),
+            self.run_task_with_retries(_resolutions, domain),
+            self.run_task_with_retries(_referrer_files, domain),
+            self.run_task_with_retries(_communicating_files,domain),
+            self.run_task_with_retries(_subdomains,domain)
+        ]
         await asyncio.gather(*tasks, return_exceptions=True)
         return report
 
@@ -169,7 +186,12 @@ class VT(Client):
                 data["attributes"]["last_analysis_results"] = filtered_results
             report['communicating_files'] = res_json
 
-        tasks = [_analyse(ip), _resolutions(ip), _referrer_files(ip), _communicating_files(ip)]
+        tasks = [
+            self.run_task_with_retries(_analyse, ip),
+            self.run_task_with_retries(_resolutions, ip),
+            self.run_task_with_retries(_referrer_files, ip),
+            self.run_task_with_retries(_communicating_files, ip)
+        ]
         await asyncio.gather(*tasks, return_exceptions=True)
         return report
 
@@ -180,7 +202,7 @@ class VT(Client):
 
         async def _analyse(_file) -> None:
             url = f'https://www.virustotal.com/ui/files/{_file}'
-            res = await self._aget_url("GET", url, stream=True, headers=random_vt_ua_headers())
+            res = await self._aget_url("GET", url, stream=False, headers=random_vt_ua_headers())
             res_json = orjson.loads(res)
             # 获取分析结果，如果键不存在则返回一个空字典
             last_analysis_results = res_json.get("data", {}).get("attributes", {}).get("last_analysis_results", {})
@@ -198,7 +220,7 @@ class VT(Client):
 
         async def _contacted_urls(_file) -> None:
             url = f'https://www.virustotal.com/ui/files/{_file}/contacted_urls'
-            res = await self._aget_url("GET", url, stream=True, headers=random_vt_ua_headers())
+            res = await self._aget_url("GET", url, stream=False, headers=random_vt_ua_headers())
             res_json = orjson.loads(res)
             for data in res_json.get("data", []):
                 # 确保 "attributes" 键存在，如果不存在，则跳过这个数据项
@@ -214,7 +236,7 @@ class VT(Client):
 
         async def _contacted_domains(_file) -> None:
             url = f'https://www.virustotal.com/ui/files/{_file}/contacted_domains'
-            res = await self._aget_url("GET", url, stream=True, headers=random_vt_ua_headers())
+            res = await self._aget_url("GET", url, stream=False, headers=random_vt_ua_headers())
             res_json = orjson.loads(res)
             for data in res_json.get("data", []):
                 # 确保 "attributes" 键存在，如果不存在，则跳过这个数据项
@@ -230,7 +252,7 @@ class VT(Client):
 
         async def _contacted_ips(_file) -> None:
             url = f'https://www.virustotal.com/ui/files/{_file}/contacted_ips'
-            res = await self._aget_url("GET", url, stream=True, headers=random_vt_ua_headers())
+            res = await self._aget_url("GET", url, stream=False, headers=random_vt_ua_headers())
             res_json = orjson.loads(res)
             for data in res_json.get("data", []):
                 # 确保 "attributes" 键存在，如果不存在，则跳过这个数据项
@@ -244,8 +266,12 @@ class VT(Client):
                 data["attributes"]["last_analysis_results"] = filtered_results
             report['contacted_ips'] = res_json
 
-        tasks = [_analyse(file), _contacted_urls(file),
-                 _contacted_domains(file), _contacted_ips(file)]
+        tasks = [
+            self.run_task_with_retries(_analyse, file),
+            self.run_task_with_retries(_contacted_urls, file),
+            self.run_task_with_retries(_contacted_domains, file),
+            self.run_task_with_retries(_contacted_ips, file)
+        ]
         await asyncio.gather(*tasks, return_exceptions=True)
         print(report.keys())
         return report
