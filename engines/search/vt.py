@@ -51,7 +51,7 @@ class VT(Client):
 
         async def _analyse(dm) -> None:
             url = f'https://www.virustotal.com/ui/domains/{dm}'
-            res = await self._aget_url("GET", url, stream=True, headers=random_vt_ua_headers())
+            res = await self._aget_url("GET", url, headers=random_vt_ua_headers())
             res_json = orjson.loads(res)
             # 获取分析结果，如果键不存在则返回一个空字典
             last_analysis_results = res_json.get("data", {}).get("attributes", {}).get("last_analysis_results", {})
@@ -68,12 +68,12 @@ class VT(Client):
 
         async def _resolutions(dm) -> None:
             url = f'https://www.virustotal.com/ui/domains/{dm}/resolutions'
-            res = await self._aget_url("GET", url, stream=True, headers=random_vt_ua_headers())
+            res = await self._aget_url("GET", url, headers=random_vt_ua_headers())
             report['resolutions'] = orjson.loads(res)
 
         async def _referrer_files(dm) -> None:
             url = f'https://www.virustotal.com/ui/domains/{dm}/referrer_files'
-            res = await self._aget_url("GET", url, stream=True, headers=random_vt_ua_headers())
+            res = await self._aget_url("GET", url, headers=random_vt_ua_headers())
             res_json = orjson.loads(res)
             for data in res_json.get("data", []):
                 # 确保 "attributes" 键存在，如果不存在，则跳过这个数据项
@@ -88,7 +88,7 @@ class VT(Client):
 
         async def _communicating_files(dm) -> None:
             url = f'https://www.virustotal.com/ui/domains/{dm}/communicating_files'
-            res = await self._aget_url("GET", url, stream=True, headers=random_vt_ua_headers())
+            res = await self._aget_url("GET", url, headers=random_vt_ua_headers())
             res_json = orjson.loads(res)
             for data in res_json.get("data", []):
                 # 确保 "attributes" 键存在，如果不存在，则跳过这个数据项
@@ -104,7 +104,7 @@ class VT(Client):
 
         async def _subdomains(dm) -> None:
             url = f'https://www.virustotal.com/ui/domains/{dm}/subdomains?relationships=resolutions'
-            res = await self._aget_url("GET", url, stream=True, headers=random_vt_ua_headers())
+            res = await self._aget_url("GET", url, headers=random_vt_ua_headers())
             res_json = orjson.loads(res)
             for data in res_json.get("data", []):
                 # 确保 "attributes" 键存在，如果不存在，则跳过这个数据项
@@ -133,7 +133,7 @@ class VT(Client):
 
         async def _analyse(_ip) -> None:
             url = f'https://www.virustotal.com/ui/ip_addresses/{_ip}'
-            res = await self._aget_url("GET", url, stream=True, headers=random_vt_ua_headers())
+            res = await self._aget_url("GET", url, headers=random_vt_ua_headers())
             res_json = orjson.loads(res)
             # 获取分析结果，如果键不存在则返回一个空字典
             print(res_json)
@@ -151,12 +151,12 @@ class VT(Client):
 
         async def _resolutions(_ip) -> None:
             url = f'https://www.virustotal.com/ui/ip_addresses/{_ip}/resolutions'
-            res = await self._aget_url("GET", url, stream=True, headers=random_vt_ua_headers())
+            res = await self._aget_url("GET", url, headers=random_vt_ua_headers())
             report['resolutions'] = orjson.loads(res)
 
         async def _referrer_files(_ip) -> None:
             url = f'https://www.virustotal.com/ui/ip_addresses/{_ip}/referrer_files'
-            res = await self._aget_url("GET", url, stream=True, headers=random_vt_ua_headers())
+            res = await self._aget_url("GET", url, headers=random_vt_ua_headers())
             res_json = orjson.loads(res)
             for data in res_json.get("data", []):
                 # 确保 "attributes" 键存在，如果不存在，则跳过这个数据项
@@ -172,7 +172,7 @@ class VT(Client):
 
         async def _communicating_files(_ip) -> None:
             url = f'https://www.virustotal.com/ui/ip_addresses/{_ip}/communicating_files'
-            res = await self._aget_url("GET", url, stream=True, headers=random_vt_ua_headers())
+            res = await self._aget_url("GET", url, headers=random_vt_ua_headers())
             res_json = orjson.loads(res)
             for data in res_json.get("data", []):
                 # 确保 "attributes" 键存在，如果不存在，则跳过这个数据项
@@ -202,7 +202,7 @@ class VT(Client):
 
         async def _analyse(_file) -> None:
             url = f'https://www.virustotal.com/ui/files/{_file}'
-            res = await self._aget_url("GET", url, stream=False, headers=random_vt_ua_headers())
+            res = await self._aget_url("GET", url, headers=random_vt_ua_headers())
             res_json = orjson.loads(res)
             # 获取分析结果，如果键不存在则返回一个空字典
             last_analysis_results = res_json.get("data", {}).get("attributes", {}).get("last_analysis_results", {})
@@ -220,7 +220,7 @@ class VT(Client):
 
         async def _contacted_urls(_file) -> None:
             url = f'https://www.virustotal.com/ui/files/{_file}/contacted_urls'
-            res = await self._aget_url("GET", url, stream=False, headers=random_vt_ua_headers())
+            res = await self._aget_url("GET", url, headers=random_vt_ua_headers())
             res_json = orjson.loads(res)
             for data in res_json.get("data", []):
                 # 确保 "attributes" 键存在，如果不存在，则跳过这个数据项
@@ -236,7 +236,7 @@ class VT(Client):
 
         async def _contacted_domains(_file) -> None:
             url = f'https://www.virustotal.com/ui/files/{_file}/contacted_domains'
-            res = await self._aget_url("GET", url, stream=False, headers=random_vt_ua_headers())
+            res = await self._aget_url("GET", url, headers=random_vt_ua_headers())
             res_json = orjson.loads(res)
             for data in res_json.get("data", []):
                 # 确保 "attributes" 键存在，如果不存在，则跳过这个数据项
@@ -252,7 +252,7 @@ class VT(Client):
 
         async def _contacted_ips(_file) -> None:
             url = f'https://www.virustotal.com/ui/files/{_file}/contacted_ips'
-            res = await self._aget_url("GET", url, stream=False, headers=random_vt_ua_headers())
+            res = await self._aget_url("GET", url, headers=random_vt_ua_headers())
             res_json = orjson.loads(res)
             for data in res_json.get("data", []):
                 # 确保 "attributes" 键存在，如果不存在，则跳过这个数据项
