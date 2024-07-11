@@ -44,9 +44,9 @@ class VT(Client):
                 raise
             except Exception as ex:
                 attempt += 1
+                print(f"Retrying... Attempt {attempt}/{retries} Task {task_func.__name__} failed with {ex}.")
                 if attempt >= retries:
                     raise
-                print(f"Task {task_func.__name__} failed with {ex}. Retrying... Attempt {attempt + 1}/{retries}")
                 await asyncio.sleep(retry_wait)
 
     async def _domain_api(self, domain: str):

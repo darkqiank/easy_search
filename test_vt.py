@@ -6,7 +6,7 @@ for i in range(1):
     print(i)
     start_time = time.time()
     with VT(proxies="socks5://100.77.221.27:7890", timeout=10) as vt:
-        res = vt.api(input_str='pcvcc.bilibiliflv')
+        res = vt.api(input_str='1233669.xyz')
         # res = vt.api(input_str='baidu.com')
         with open('vt.json', 'w', encoding='utf-8') as f:
             json.dump(res, f, ensure_ascii=False, indent=4)
