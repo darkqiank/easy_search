@@ -9,6 +9,7 @@ import tldextract
 import ipaddress
 
 from engines.exceptions import NotFoundException
+from engines.ua_tools import random_impersonate
 
 
 class VT(Client):
@@ -56,7 +57,8 @@ class VT(Client):
 
         async def _analyse(dm) -> None:
             url = f'https://www.virustotal.com/ui/domains/{dm}'
-            res = await self._aget_url("GET", url, headers=random_vt_ua_headers())
+            impersonate, headers = random_vt_ua_headers()
+            res = await self._aget_url("GET", url, impersonate=impersonate, headers=headers)
             res_json = orjson.loads(res)
             # 获取分析结果，如果键不存在则返回一个空字典
             last_analysis_results = res_json.get("data", {}).get("attributes", {}).get("last_analysis_results", {})
@@ -73,12 +75,14 @@ class VT(Client):
 
         async def _resolutions(dm) -> None:
             url = f'https://www.virustotal.com/ui/domains/{dm}/resolutions'
-            res = await self._aget_url("GET", url, headers=random_vt_ua_headers())
+            impersonate, headers = random_vt_ua_headers()
+            res = await self._aget_url("GET", url, impersonate=impersonate, headers=headers)
             report['resolutions'] = orjson.loads(res)
 
         async def _referrer_files(dm) -> None:
             url = f'https://www.virustotal.com/ui/domains/{dm}/referrer_files'
-            res = await self._aget_url("GET", url, headers=random_vt_ua_headers())
+            impersonate, headers = random_vt_ua_headers()
+            res = await self._aget_url("GET", url, impersonate=impersonate, headers=headers)
             res_json = orjson.loads(res)
             for data in res_json.get("data", []):
                 # 确保 "attributes" 键存在，如果不存在，则跳过这个数据项
@@ -93,7 +97,8 @@ class VT(Client):
 
         async def _communicating_files(dm) -> None:
             url = f'https://www.virustotal.com/ui/domains/{dm}/communicating_files'
-            res = await self._aget_url("GET", url, headers=random_vt_ua_headers())
+            impersonate, headers = random_vt_ua_headers()
+            res = await self._aget_url("GET", url, impersonate=impersonate, headers=headers)
             res_json = orjson.loads(res)
             for data in res_json.get("data", []):
                 # 确保 "attributes" 键存在，如果不存在，则跳过这个数据项
@@ -109,7 +114,8 @@ class VT(Client):
 
         async def _subdomains(dm) -> None:
             url = f'https://www.virustotal.com/ui/domains/{dm}/subdomains?relationships=resolutions'
-            res = await self._aget_url("GET", url, headers=random_vt_ua_headers())
+            impersonate, headers = random_vt_ua_headers()
+            res = await self._aget_url("GET", url, impersonate=impersonate, headers=headers)
             res_json = orjson.loads(res)
             for data in res_json.get("data", []):
                 # 确保 "attributes" 键存在，如果不存在，则跳过这个数据项
@@ -138,7 +144,8 @@ class VT(Client):
 
         async def _analyse(_ip) -> None:
             url = f'https://www.virustotal.com/ui/ip_addresses/{_ip}'
-            res = await self._aget_url("GET", url, headers=random_vt_ua_headers())
+            impersonate, headers = random_vt_ua_headers()
+            res = await self._aget_url("GET", url, impersonate=impersonate, headers=headers)
             res_json = orjson.loads(res)
             # 获取分析结果，如果键不存在则返回一个空字典
             print(res_json)
@@ -156,12 +163,14 @@ class VT(Client):
 
         async def _resolutions(_ip) -> None:
             url = f'https://www.virustotal.com/ui/ip_addresses/{_ip}/resolutions'
-            res = await self._aget_url("GET", url, headers=random_vt_ua_headers())
+            impersonate, headers = random_vt_ua_headers()
+            res = await self._aget_url("GET", url, impersonate=impersonate, headers=headers)
             report['resolutions'] = orjson.loads(res)
 
         async def _referrer_files(_ip) -> None:
             url = f'https://www.virustotal.com/ui/ip_addresses/{_ip}/referrer_files'
-            res = await self._aget_url("GET", url, headers=random_vt_ua_headers())
+            impersonate, headers = random_vt_ua_headers()
+            res = await self._aget_url("GET", url, impersonate=impersonate, headers=headers)
             res_json = orjson.loads(res)
             for data in res_json.get("data", []):
                 # 确保 "attributes" 键存在，如果不存在，则跳过这个数据项
@@ -177,7 +186,8 @@ class VT(Client):
 
         async def _communicating_files(_ip) -> None:
             url = f'https://www.virustotal.com/ui/ip_addresses/{_ip}/communicating_files'
-            res = await self._aget_url("GET", url, headers=random_vt_ua_headers())
+            impersonate, headers = random_vt_ua_headers()
+            res = await self._aget_url("GET", url, impersonate=impersonate, headers=headers)
             res_json = orjson.loads(res)
             for data in res_json.get("data", []):
                 # 确保 "attributes" 键存在，如果不存在，则跳过这个数据项
@@ -207,7 +217,8 @@ class VT(Client):
 
         async def _analyse(_file) -> None:
             url = f'https://www.virustotal.com/ui/files/{_file}'
-            res = await self._aget_url("GET", url, headers=random_vt_ua_headers())
+            impersonate, headers = random_vt_ua_headers()
+            res = await self._aget_url("GET", url, impersonate=impersonate, headers=headers)
             res_json = orjson.loads(res)
             # 获取分析结果，如果键不存在则返回一个空字典
             last_analysis_results = res_json.get("data", {}).get("attributes", {}).get("last_analysis_results", {})
@@ -225,7 +236,8 @@ class VT(Client):
 
         async def _contacted_urls(_file) -> None:
             url = f'https://www.virustotal.com/ui/files/{_file}/contacted_urls'
-            res = await self._aget_url("GET", url, headers=random_vt_ua_headers())
+            impersonate, headers = random_vt_ua_headers()
+            res = await self._aget_url("GET", url, impersonate=impersonate, headers=headers)
             res_json = orjson.loads(res)
             for data in res_json.get("data", []):
                 # 确保 "attributes" 键存在，如果不存在，则跳过这个数据项
@@ -241,7 +253,8 @@ class VT(Client):
 
         async def _contacted_domains(_file) -> None:
             url = f'https://www.virustotal.com/ui/files/{_file}/contacted_domains'
-            res = await self._aget_url("GET", url, headers=random_vt_ua_headers())
+            impersonate, headers = random_vt_ua_headers()
+            res = await self._aget_url("GET", url, impersonate=impersonate, headers=headers)
             res_json = orjson.loads(res)
             for data in res_json.get("data", []):
                 # 确保 "attributes" 键存在，如果不存在，则跳过这个数据项
@@ -257,7 +270,8 @@ class VT(Client):
 
         async def _contacted_ips(_file) -> None:
             url = f'https://www.virustotal.com/ui/files/{_file}/contacted_ips'
-            res = await self._aget_url("GET", url, headers=random_vt_ua_headers())
+            impersonate, headers = random_vt_ua_headers()
+            res = await self._aget_url("GET", url, impersonate=impersonate, headers=headers)
             res_json = orjson.loads(res)
             for data in res_json.get("data", []):
                 # 确保 "attributes" 键存在，如果不存在，则跳过这个数据项
@@ -305,20 +319,9 @@ def categorize_input(input_str):
 
 
 def random_vt_ua_headers():
-    ua = random.choice([
-        {
-            "sec-ch-ua": '"Google Chrome";v="124", "Chromium";v="124", "Not.A/Brand";v="24"',
-            "User-Agent": 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-            "sec-ch-ua-platform": '"macOS"'
-        },
-        {
-            "sec-ch-ua": '"Google Chrome";v="124", "Chromium";v="124", "Not.A/Brand";v="24"',
-            "User-Agent": 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-            "sec-ch-ua-platform": '"Windows"'
-        }
-    ])
+    impersonate, ua = random_impersonate()
     ua["X-VT-Anti-Abuse-Header"] = get_vt_anti()
-    return ua
+    return impersonate, ua
 
 
 def get_vt_anti():
