@@ -16,8 +16,6 @@ class VT(Client):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._asession.headers["x-app-version"] = "v1x265x1"
-        self._asession.headers["X-Tool"] = "vt-ui-main"
         self._asession.headers["sec-ch-ua-mobile"] = "?0"
         self._asession.headers["content-type"] = "application/json"
         self._asession.headers["accept"] = "application/json"
@@ -319,9 +317,11 @@ def categorize_input(input_str):
 
 
 def random_vt_ua_headers():
-    impersonate, ua = random_impersonate()
-    ua["X-VT-Anti-Abuse-Header"] = get_vt_anti()
-    return impersonate, ua
+    impersonate, ua_headers = random_impersonate()
+    ua_headers["X-VT-Anti-Abuse-Header"] = get_vt_anti()
+    ua_headers["X-App-Version"] = 'v1x278x0'
+    ua_headers["X-Tool"] = 'vt-ui-main'
+    return impersonate, ua_headers
 
 
 def get_vt_anti():
