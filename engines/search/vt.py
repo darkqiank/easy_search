@@ -15,6 +15,7 @@ from engines.ua_tools import random_impersonate
 class VT(Client):
 
     def __init__(self, *args, **kwargs):
+        self.vt_end_point  = kwargs.pop('vt_end_point', 'https://www.virustotal.com/')
         super().__init__(*args, **kwargs)
         self._asession.headers["sec-ch-ua-mobile"] = "?0"
         self._asession.headers["content-type"] = "application/json"
@@ -54,7 +55,7 @@ class VT(Client):
                   }
 
         async def _analyse(dm) -> None:
-            url = f'https://www.virustotal.com/ui/domains/{dm}'
+            url = f'{self.vt_end_point}ui/domains/{dm}'
             impersonate, headers = random_vt_ua_headers()
             res = await self._aget_url("GET", url, impersonate=impersonate, headers=headers)
             res_json = orjson.loads(res)
@@ -72,13 +73,13 @@ class VT(Client):
             report['analyse'] = res_json
 
         async def _resolutions(dm) -> None:
-            url = f'https://www.virustotal.com/ui/domains/{dm}/resolutions'
+            url = f'{self.vt_end_point}ui/domains/{dm}/resolutions'
             impersonate, headers = random_vt_ua_headers()
             res = await self._aget_url("GET", url, impersonate=impersonate, headers=headers)
             report['resolutions'] = orjson.loads(res)
 
         async def _referrer_files(dm) -> None:
-            url = f'https://www.virustotal.com/ui/domains/{dm}/referrer_files'
+            url = f'{self.vt_end_point}ui/domains/{dm}/referrer_files'
             impersonate, headers = random_vt_ua_headers()
             res = await self._aget_url("GET", url, impersonate=impersonate, headers=headers)
             res_json = orjson.loads(res)
@@ -94,7 +95,7 @@ class VT(Client):
             report['referrer_files'] = res_json
 
         async def _communicating_files(dm) -> None:
-            url = f'https://www.virustotal.com/ui/domains/{dm}/communicating_files'
+            url = f'{self.vt_end_point}ui/domains/{dm}/communicating_files'
             impersonate, headers = random_vt_ua_headers()
             res = await self._aget_url("GET", url, impersonate=impersonate, headers=headers)
             res_json = orjson.loads(res)
@@ -111,7 +112,7 @@ class VT(Client):
             report['communicating_files'] = res_json
 
         async def _subdomains(dm) -> None:
-            url = f'https://www.virustotal.com/ui/domains/{dm}/subdomains?relationships=resolutions'
+            url = f'{self.vt_end_point}ui/domains/{dm}/subdomains?relationships=resolutions'
             impersonate, headers = random_vt_ua_headers()
             res = await self._aget_url("GET", url, impersonate=impersonate, headers=headers)
             res_json = orjson.loads(res)
@@ -141,7 +142,7 @@ class VT(Client):
                   }
 
         async def _analyse(_ip) -> None:
-            url = f'https://www.virustotal.com/ui/ip_addresses/{_ip}'
+            url = f'{self.vt_end_point}ui/ip_addresses/{_ip}'
             impersonate, headers = random_vt_ua_headers()
             res = await self._aget_url("GET", url, impersonate=impersonate, headers=headers)
             res_json = orjson.loads(res)
@@ -160,13 +161,13 @@ class VT(Client):
             report['analyse'] = res_json
 
         async def _resolutions(_ip) -> None:
-            url = f'https://www.virustotal.com/ui/ip_addresses/{_ip}/resolutions'
+            url = f'{self.vt_end_point}ui/ip_addresses/{_ip}/resolutions'
             impersonate, headers = random_vt_ua_headers()
             res = await self._aget_url("GET", url, impersonate=impersonate, headers=headers)
             report['resolutions'] = orjson.loads(res)
 
         async def _referrer_files(_ip) -> None:
-            url = f'https://www.virustotal.com/ui/ip_addresses/{_ip}/referrer_files'
+            url = f'{self.vt_end_point}ui/ip_addresses/{_ip}/referrer_files'
             impersonate, headers = random_vt_ua_headers()
             res = await self._aget_url("GET", url, impersonate=impersonate, headers=headers)
             res_json = orjson.loads(res)
@@ -183,7 +184,7 @@ class VT(Client):
             report['referrer_files'] = res_json
 
         async def _communicating_files(_ip) -> None:
-            url = f'https://www.virustotal.com/ui/ip_addresses/{_ip}/communicating_files'
+            url = f'{self.vt_end_point}ui/ip_addresses/{_ip}/communicating_files'
             impersonate, headers = random_vt_ua_headers()
             res = await self._aget_url("GET", url, impersonate=impersonate, headers=headers)
             res_json = orjson.loads(res)
@@ -214,7 +215,7 @@ class VT(Client):
                   }
 
         async def _analyse(_file) -> None:
-            url = f'https://www.virustotal.com/ui/files/{_file}'
+            url = f'{self.vt_end_point}ui/files/{_file}'
             impersonate, headers = random_vt_ua_headers()
             res = await self._aget_url("GET", url, impersonate=impersonate, headers=headers)
             res_json = orjson.loads(res)
@@ -233,7 +234,7 @@ class VT(Client):
             report['analyse'] = res_json
 
         async def _contacted_urls(_file) -> None:
-            url = f'https://www.virustotal.com/ui/files/{_file}/contacted_urls'
+            url = f'{self.vt_end_point}ui/files/{_file}/contacted_urls'
             impersonate, headers = random_vt_ua_headers()
             res = await self._aget_url("GET", url, impersonate=impersonate, headers=headers)
             res_json = orjson.loads(res)
@@ -250,7 +251,7 @@ class VT(Client):
             report['contacted_urls'] = res_json
 
         async def _contacted_domains(_file) -> None:
-            url = f'https://www.virustotal.com/ui/files/{_file}/contacted_domains'
+            url = f'{self.vt_end_point}ui/files/{_file}/contacted_domains'
             impersonate, headers = random_vt_ua_headers()
             res = await self._aget_url("GET", url, impersonate=impersonate, headers=headers)
             res_json = orjson.loads(res)
@@ -267,7 +268,7 @@ class VT(Client):
             report['contacted_domains'] = res_json
 
         async def _contacted_ips(_file) -> None:
-            url = f'https://www.virustotal.com/ui/files/{_file}/contacted_ips'
+            url = f'{self.vt_end_point}ui/files/{_file}/contacted_ips'
             impersonate, headers = random_vt_ua_headers()
             res = await self._aget_url("GET", url, impersonate=impersonate, headers=headers)
             res_json = orjson.loads(res)
