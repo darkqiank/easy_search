@@ -7,6 +7,7 @@ import asyncio
 from typing import Any
 import tldextract
 import ipaddress
+import re
 
 from engines.exceptions import NotFoundException
 from engines.ua_tools import random_impersonate
@@ -15,7 +16,7 @@ from engines.ua_tools import random_impersonate
 class VT(Client):
 
     def __init__(self, *args, **kwargs):
-        self.vt_end_point  = kwargs.pop('vt_end_point', 'https://www.virustotal.com/')
+        self.vt_end_point = kwargs.pop('vt_end_point', 'https://www.virustotal.com/')
         super().__init__(*args, **kwargs)
         self._asession.headers["sec-ch-ua-mobile"] = "?0"
         self._asession.headers["content-type"] = "application/json"
@@ -31,7 +32,11 @@ class VT(Client):
         elif is_domain(input_str):
             return self._run_async_in_thread(self._domain_api(input_str))
         else:
-            return self._run_async_in_thread(self._file_api(input_str))
+            hash_type = identify_hash(input_str)
+            if hash_type in ('MD5', 'SHA-1'):
+                return self._run_async_in_thread(self._search_api(input_str))
+            elif hash_type == 'SHA-256':
+                return self._run_async_in_thread(self._file_api(input_str))
 
     @staticmethod
     async def run_task_with_retries(task_func, *args, retries=3, retry_wait=2):
@@ -126,12 +131,20 @@ class VT(Client):
                 data["attributes"]["last_analysis_results"] = filtered_results
             report['subdomains'] = res_json
 
+        async def _comments(dm) -> None:
+            url = f'{self.vt_end_point}ui/domains/{dm}/comments?relationships=item%2Cauthor'
+            impersonate, headers = random_vt_ua_headers()
+            res = await self._aget_url("GET", url, impersonate=impersonate, headers=headers)
+            res_json = orjson.loads(res)
+            report['comments'] = res_json
+
         tasks = [
             self.run_task_with_retries(_analyse, domain),
             self.run_task_with_retries(_resolutions, domain),
             self.run_task_with_retries(_referrer_files, domain),
-            self.run_task_with_retries(_communicating_files,domain),
-            self.run_task_with_retries(_subdomains,domain)
+            self.run_task_with_retries(_communicating_files, domain),
+            self.run_task_with_retries(_subdomains, domain),
+            self.run_task_with_retries(_comments, domain)
         ]
         await asyncio.gather(*tasks, return_exceptions=True)
         return report
@@ -200,11 +213,19 @@ class VT(Client):
                 data["attributes"]["last_analysis_results"] = filtered_results
             report['communicating_files'] = res_json
 
+        async def _comments(_ip) -> None:
+            url = f'{self.vt_end_point}ui/ip_addresses/{_ip}/comments?relationships=item%2Cauthor'
+            impersonate, headers = random_vt_ua_headers()
+            res = await self._aget_url("GET", url, impersonate=impersonate, headers=headers)
+            res_json = orjson.loads(res)
+            report['comments'] = res_json
+
         tasks = [
             self.run_task_with_retries(_analyse, ip),
             self.run_task_with_retries(_resolutions, ip),
             self.run_task_with_retries(_referrer_files, ip),
-            self.run_task_with_retries(_communicating_files, ip)
+            self.run_task_with_retries(_communicating_files, ip),
+            self.run_task_with_retries(_comments, ip)
         ]
         await asyncio.gather(*tasks, return_exceptions=True)
         return report
@@ -284,15 +305,33 @@ class VT(Client):
                 data["attributes"]["last_analysis_results"] = filtered_results
             report['contacted_ips'] = res_json
 
+        async def _comments(_file) -> None:
+            url = f'{self.vt_end_point}ui/files/{_file}/comments?relationships=item%2Cauthor'
+            impersonate, headers = random_vt_ua_headers()
+            res = await self._aget_url("GET", url, impersonate=impersonate, headers=headers)
+            res_json = orjson.loads(res)
+            report['comments'] = res_json
+
         tasks = [
             self.run_task_with_retries(_analyse, file),
             self.run_task_with_retries(_contacted_urls, file),
             self.run_task_with_retries(_contacted_domains, file),
-            self.run_task_with_retries(_contacted_ips, file)
+            self.run_task_with_retries(_contacted_ips, file),
+            self.run_task_with_retries(_comments, file)
         ]
         await asyncio.gather(*tasks, return_exceptions=True)
         print(report.keys())
         return report
+
+    async def _search_api(self, query: str):
+        async def _search(_q):
+            url = f'{self.vt_end_point}ui/search?limit=20&relationships%5Bcomment%5D=author%2Citem&query={query}'
+            impersonate, headers = random_vt_ua_headers()
+            res = await self._aget_url("GET", url, impersonate=impersonate, headers=headers)
+            res_json = orjson.loads(res)
+            return res_json.get("data", [])
+        result = await self.run_task_with_retries(_search, query)
+        return result
 
 
 def is_ip_address(input_str):
@@ -308,6 +347,17 @@ def is_domain(input_str):
     return bool(extracted.domain) and bool(extracted.suffix)
 
 
+def identify_hash(hash_str):
+    if re.match(r'^[a-f0-9]{32}$', hash_str, re.IGNORECASE):
+        return 'MD5'
+    elif re.match(r'^[a-f0-9]{40}$', hash_str, re.IGNORECASE):
+        return 'SHA-1'
+    elif re.match(r'^[a-f0-9]{64}$', hash_str, re.IGNORECASE):
+        return 'SHA-256'
+    else:
+        return None
+
+
 def categorize_input(input_str):
     if is_ip_address(input_str):
         return "ip"
@@ -320,7 +370,7 @@ def categorize_input(input_str):
 def random_vt_ua_headers():
     impersonate, ua_headers = random_impersonate()
     ua_headers["X-VT-Anti-Abuse-Header"] = get_vt_anti()
-    ua_headers["X-App-Version"] = 'v1x278x0'
+    ua_headers["X-App-Version"] = 'v1x282x3'
     ua_headers["X-Tool"] = 'vt-ui-main'
     return impersonate, ua_headers
 
