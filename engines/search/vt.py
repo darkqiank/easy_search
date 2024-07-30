@@ -10,7 +10,7 @@ import ipaddress
 import re
 
 from engines.exceptions import NotFoundException
-from engines.ua_tools import random_impersonate
+from engines.random_tools import random_impersonate, generate_random_public_ip
 
 
 class VT(Client):
@@ -372,6 +372,10 @@ def random_vt_ua_headers():
     ua_headers["X-VT-Anti-Abuse-Header"] = get_vt_anti()
     ua_headers["X-App-Version"] = 'v1x282x3'
     ua_headers["X-Tool"] = 'vt-ui-main'
+    fake_ip = generate_random_public_ip()
+    ua_headers["X-Forwarded-For"] = fake_ip
+    ua_headers["X-Real-IP"] = fake_ip
+    ua_headers["X-Forwarded-Host"] = "www.virustotal.com"
     return impersonate, ua_headers
 
 

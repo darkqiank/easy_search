@@ -1,5 +1,24 @@
 import random
 
+# 定义常见的公网IP地址范围
+public_ip_ranges = [
+    ((1, 0, 0, 0), (9, 255, 255, 255)),    # 1.0.0.0 - 9.255.255.255
+    ((11, 0, 0, 0), (126, 255, 255, 255)), # 11.0.0.0 - 126.255.255.255
+    ((128, 0, 0, 0), (172, 15, 255, 255)), # 128.0.0.0 - 172.15.255.255
+    ((172, 32, 0, 0), (191, 255, 255, 255)), # 172.32.0.0 - 191.255.255.255
+    ((192, 0, 1, 0), (192, 167, 255, 255)), # 192.0.1.0 - 192.167.255.255
+    ((192, 169, 0, 0), (223, 255, 255, 255)), # 192.169.0.0 - 223.255.255.255
+    ((224, 0, 0, 0), (239, 255, 255, 255)) # 224.0.0.0 - 239.255.255.255
+]
+
+def generate_random_ip_from_range(start, end):
+    return ".".join(str(random.randint(start[i], end[i])) for i in range(4))
+
+def generate_random_public_ip():
+    range_start, range_end = random.choice(public_ip_ranges)
+    return generate_random_ip_from_range(range_start, range_end)
+
+print(generate_random_public_ip())
 
 def random_impersonate():
     impersonate = random.choice(['chrome124', 'chrome123', 'chrome120', 'edge99', 'edge101', 'safari17_0'])
