@@ -8,9 +8,10 @@ def get_rand_vt_end_point():
     vt_end_points = ["https://www.virustotal.com/",
                      "https://vtfastlycdn.451964719.xyz/",
                      "https://vtgcorecdn.451964719.xyz/",
-                     "https://vtlightcdn.451964719.xyz/"
+                     "https://vtcdn.global.ssl.fastly.net",
+                     # "https://vtlightcdn.451964719.xyz/"
                      ]
-    weights = [0.7, 0.1, 0.1, 0.1]
+    weights = [0.3, 0.3, 0.3, 0.1, 0.1]
     vt_end_point = random.choices(vt_end_points, weights=weights, k=1)[0]
     return vt_end_point
 
