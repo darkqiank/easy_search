@@ -27,6 +27,10 @@ class VT(Client):
             "X-VT-Anti-Abuse-Header"] = "MTE3NTMwOTMwOTQtWkc5dWRDQmlaU0JsZG1scy0xNzE2MzQ1MDI4LjQ1OQ=="
 
     def api(self, input_str: str) -> Any:
+        if input_str.startswith('user/'):
+            u = input_str.lstrip('user/')
+            return self._run_async_in_thread(self._user_api(u))
+
         if is_ip_address(input_str):
             return self._run_async_in_thread(self._ip_api(input_str))
         elif is_domain(input_str):
@@ -312,13 +316,22 @@ class VT(Client):
             res_json = orjson.loads(res)
             report['comments'] = res_json
 
+        async def _behaviour(_file) -> None:
+            url = f'{self.vt_end_point}ui/files/{_file}/behaviour_mitre_trees'
+            impersonate, headers = random_vt_ua_headers()
+            res = await self._aget_url("GET", url, impersonate=impersonate, headers=headers)
+            res_json = orjson.loads(res)
+            report['behaviour'] = res_json
+
         tasks = [
             self.run_task_with_retries(_analyse, file),
             self.run_task_with_retries(_contacted_urls, file),
             self.run_task_with_retries(_contacted_domains, file),
             self.run_task_with_retries(_contacted_ips, file),
-            self.run_task_with_retries(_comments, file)
+            self.run_task_with_retries(_comments, file),
+            self.run_task_with_retries(_behaviour, file)
         ]
+
         await asyncio.gather(*tasks, return_exceptions=True)
         print(report.keys())
         return report
@@ -332,6 +345,18 @@ class VT(Client):
             return res_json.get("data", [])
         result = await self.run_task_with_retries(_search, query)
         return result
+
+    async def _user_api(self, user: str):
+        async def _get_user(_q):
+            url = f'{self.vt_end_point}ui/users/{_q}/comments?relationships=author%2Citem'
+            impersonate, headers = random_vt_ua_headers()
+            res = await self._aget_url("GET", url, impersonate=impersonate, headers=headers)
+            res_json = orjson.loads(res)
+            return res_json.get("data", [])
+
+        result = await self.run_task_with_retries(_get_user, user)
+        return result
+
 
 
 def is_ip_address(input_str):
