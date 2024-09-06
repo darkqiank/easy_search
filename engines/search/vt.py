@@ -328,7 +328,15 @@ class VT(Client):
             impersonate, headers = random_vt_ua_headers()
             res = await self._aget_url("GET", url, impersonate=impersonate, headers=headers)
             res_json = orjson.loads(res)
-            report['file_behaviour'] = res_json
+            ip_traffic_list = []
+            for data in res_json.get("data", []):
+                # 确保 "attributes" 键存在，如果不存在，则跳过这个数据项
+                if "attributes" not in data:
+                    continue
+                ip_traffic = data.get("attributes").get("ip_traffic")
+                if isinstance(ip_traffic, list):
+                    ip_traffic_list.extend(ip_traffic)
+            report['ip_traffic'] = ip_traffic_list
 
         tasks = [
             self.run_task_with_retries(_analyse, file),
