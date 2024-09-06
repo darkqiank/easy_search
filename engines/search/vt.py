@@ -323,13 +323,21 @@ class VT(Client):
             res_json = orjson.loads(res)
             report['behaviour'] = res_json
 
+        async def _file_behaviour(_file) -> None:
+            url = f'{self.vt_end_point}ui/files/{_file}/behaviours?limit=40'
+            impersonate, headers = random_vt_ua_headers()
+            res = await self._aget_url("GET", url, impersonate=impersonate, headers=headers)
+            res_json = orjson.loads(res)
+            report['file_behaviour'] = res_json
+
         tasks = [
             self.run_task_with_retries(_analyse, file),
             self.run_task_with_retries(_contacted_urls, file),
             self.run_task_with_retries(_contacted_domains, file),
             self.run_task_with_retries(_contacted_ips, file),
             self.run_task_with_retries(_comments, file),
-            self.run_task_with_retries(_behaviour, file)
+            self.run_task_with_retries(_behaviour, file),
+            self.run_task_with_retries(_file_behaviour, file)
         ]
 
         await asyncio.gather(*tasks, return_exceptions=True)
