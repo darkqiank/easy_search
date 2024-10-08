@@ -19,8 +19,8 @@ class DDGS(Client):
 
     async def _get_preload_params(self, keywords: str, payload: dict) -> dict:
         """Get vqd value for a search query."""
-        resp_content = await self._aget_url("POST", "https://duckduckgo.com",
-                                            data=payload)
+        resp_content = await self._aget_url("GET", "https://duckduckgo.com",
+                                            params=payload)
         # 解析HTML字符串
         tree = etree.HTML(resp_content)
         href = tree.xpath('//*[@id="deep_preload_link"]/@href')
