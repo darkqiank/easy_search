@@ -329,6 +329,7 @@ class VT(Client):
             res = await self._aget_url("GET", url, impersonate=impersonate, headers=headers)
             res_json = orjson.loads(res)
             ip_traffic_list = []
+            dns_lookups_list = []
             for data in res_json.get("data", []):
                 # 确保 "attributes" 键存在，如果不存在，则跳过这个数据项
                 if "attributes" not in data:
@@ -336,7 +337,11 @@ class VT(Client):
                 ip_traffic = data.get("attributes").get("ip_traffic")
                 if isinstance(ip_traffic, list):
                     ip_traffic_list.extend(ip_traffic)
+                dns_lookups = data.get("attributes").get("dns_lookups")
+                if isinstance(dns_lookups, list):
+                    dns_lookups_list.extend(dns_lookups)
             report['ip_traffic'] = ip_traffic_list
+            report['dns_lookups'] = dns_lookups_list
 
         tasks = [
             self.run_task_with_retries(_analyse, file),
