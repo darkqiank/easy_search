@@ -28,7 +28,7 @@ class VT(Client):
 
     def api(self, input_str: str) -> Any:
         if input_str.startswith('user/'):
-            u = input_str.lstrip('user/')
+            u = input_str[len('user/'):]
             return self._run_async_in_thread(self._user_api(u))
 
         if is_ip_address(input_str):
