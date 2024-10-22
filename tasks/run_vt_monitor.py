@@ -40,7 +40,6 @@ for user in users:
                 id_value = record.get('id')
                 data_value = json.dumps(record)
                 create_time = datetime.now()
-
                 # 插入数据到 PostgreSQL
                 cur.execute(
                     """

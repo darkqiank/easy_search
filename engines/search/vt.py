@@ -27,6 +27,9 @@ class VT(Client):
             "X-VT-Anti-Abuse-Header"] = "MTE3NTMwOTMwOTQtWkc5dWRDQmlaU0JsZG1scy0xNzE2MzQ1MDI4LjQ1OQ=="
 
     def api(self, input_str: str) -> Any:
+        if input_str == "comments":
+            return self._run_async_in_thread(self._comments_api())
+
         if input_str.startswith('user/'):
             u = input_str[len('user/'):]
             return self._run_async_in_thread(self._user_api(u))
@@ -376,6 +379,17 @@ class VT(Client):
             return res_json.get("data", [])
 
         result = await self.run_task_with_retries(_get_user, user)
+        return result
+
+    async def _comments_api(self):
+        async def _get_comments():
+            url = f'{self.vt_end_point}ui/comments?relationships=author%2Citem&filter=tag%3A%22_%3Aweb%22&limit=5'
+            impersonate, headers = random_vt_ua_headers()
+            res = await self._aget_url("GET", url, impersonate=impersonate, headers=headers)
+            res_json = orjson.loads(res)
+            return res_json.get("data", [])
+
+        result = await self.run_task_with_retries(_get_comments, )
         return result
 
 
