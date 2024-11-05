@@ -1,3 +1,5 @@
 user/drb_ra
 user/NIXLovesXerneas
 user/rectifyq
+user/thor
+user/NeikiAnalytics
