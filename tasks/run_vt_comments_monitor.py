@@ -5,8 +5,13 @@ from dotenv import load_dotenv
 import os
 import random
 import psycopg2
+from psycopg2 import pool
 import logging
 import time
+import threading
+from concurrent.futures import ThreadPoolExecutor
+import concurrent.futures
+
 
 logging.basicConfig(filename='task.log', level=logging.INFO, encoding="utf-8")
 
@@ -21,23 +26,32 @@ host = os.getenv('DB_HOST')
 port = os.getenv('DB_PORT')
 
 # PostgreSQL 连接配置
-conn = psycopg2.connect(
-    dbname=dbname,
-    user=user,
-    password=password,
-    host=host,
-    port=port
-)
+# conn = psycopg2.connect(
+#     dbname=dbname,
+#     user=user,
+#     password=password,
+#     host=host,
+#     port=port
+# )
 
-# 创建游标对象
-cur = conn.cursor()
+# 创建连接池
+connection_pool = psycopg2.pool.ThreadedConnectionPool(1, 20,
+                                                       dbname=dbname,
+                                                       user=user,
+                                                       password=password,
+                                                       host=host,
+                                                       port=port)
+
+# 创建线程锁
+lock = threading.Lock()
+
 
 def get_rand_vt_end_point():
     vt_end_points = ["https://www.virustotal.com/",
                      "https://vtfastlycdn.451964719.xyz/",
                      "https://vtgcorecdn.451964719.xyz/"
                      ]
-    weights = [0.3, 0.3, 0.3]
+    weights = [0.5, 0.5, 0.0]
     vt_end_point = random.choices(vt_end_points, weights=weights, k=1)[0]
     return vt_end_point
 
@@ -48,7 +62,11 @@ with open("tasks/vt_users.txt", "r") as f:
     lines = f.readlines()
     users = [line.strip() for line in lines]
 
+
+conn = connection_pool.getconn()
 try:
+    # 创建游标对象
+    cur = conn.cursor()
     res = []
     with VT(timeout=20, vt_end_point="https://www.virustotal.com/") as vt:
         res.extend(vt.api(input_str="comments"))
@@ -102,43 +120,61 @@ try:
         conn.commit()
 except Exception as e:
     print(e)
+finally:
+    connection_pool.putconn(conn)
 
 print("评论数据保存成功！")
 
 logging.info('Task started at {} 保存成功{}条评论'.format(time.strftime('%Y-%m-%d %H:%M:%S'), len(src_ids)))
 
-for src_id in src_ids:
+def process_src_id(src_id):
+    conn = connection_pool.getconn()
+    success = False
     print(src_id)
     try:
-        # 检查是否已存在 src_id 数据
-        cur.execute("SELECT 1 FROM vt_reports WHERE id = %s LIMIT 1", (src_id,))
-        exists = cur.fetchone()
+        with lock:
+            cur = conn.cursor()
+            # 检查是否已存在 src_id 数据
+            cur.execute("SELECT 1 FROM vt_reports WHERE id = %s LIMIT 1", (src_id,))
+            exists = cur.fetchone()
 
-        if exists:
-            print(f"src_id {src_id} 已存在，跳过")
-            continue
-
-        with VT(proxies="socks5://127.0.0.1:10808", timeout=10, vt_end_point=get_rand_vt_end_point()) as vt:
-            res = vt.api(input_str=src_id)
-            cur.execute(
-                """
-                INSERT INTO vt_reports (id, data, create_time)
-                VALUES (%s, %s, %s)
-                ON CONFLICT (id) DO NOTHING
-                """,
-                (src_id, json.dumps(res, ensure_ascii=False), create_time)
-            )
-        conn.commit()
-        print("保存成功")
+            if exists:
+                print(f"src_id {src_id} 已存在，跳过")
+            else:
+                with VT(proxies="socks5://127.0.0.1:10808", timeout=10, vt_end_point=get_rand_vt_end_point()) as vt:
+                    res = vt.api(input_str=src_id)
+                    cur.execute(
+                        """
+                        INSERT INTO vt_reports (id, data, create_time)
+                        VALUES (%s, %s, %s)
+                        ON CONFLICT (id) DO NOTHING
+                        """,
+                        (src_id, json.dumps(res, ensure_ascii=False), create_time)
+                    )
+                conn.commit()
+                print("保存成功")
+                success = True
     except Exception as e:
         print("保存失败", e)
+    finally:
+        connection_pool.putconn(conn)
+        return success
+
+success_num = 0
+
+with ThreadPoolExecutor(max_workers=10) as executor:
+    futures = []
+    for src_id in src_ids:
+        future = executor.submit(process_src_id, src_id)
+        futures.append(future)
+
+    for future in concurrent.futures.as_completed(futures):
+        response = future.result()
+        if response:
+            success_num += 1
 
 print("报告数据保存成功！")
 
-logging.info('Task started at {} 保存成功{}条报告数据'.format(time.strftime('%Y-%m-%d %H:%M:%S'), len(src_ids)))
-
-# 关闭游标和连接
-cur.close()
-conn.close()
+logging.info('Task started at {} 保存成功{}条报告数据'.format(time.strftime('%Y-%m-%d %H:%M:%S'), success_num))
 
 
