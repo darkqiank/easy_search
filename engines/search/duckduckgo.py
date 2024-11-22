@@ -11,6 +11,8 @@ from engines.utils import _normalize, _normalize_url, json_loads
 class DDGS(Client):
 
     def __init__(self, *args, **kwargs):
+        self.ddgs_end_point = kwargs.pop('ddgs_end_point', 'https://duckduckgo.com')
+        self.ddgslink_end_point = kwargs.pop('ddgslink_end_point', 'https://links.duckduckgo.com')
         super().__init__(*args, **kwargs)
         self._asession.headers["Referer"] = "https://duckduckgo.com/"
 
@@ -19,7 +21,7 @@ class DDGS(Client):
 
     async def _get_preload_params(self, keywords: str, payload: dict) -> dict:
         """Get vqd value for a search query."""
-        resp_content = await self._aget_url("GET", "https://duckduckgo.com",
+        resp_content = await self._aget_url("GET", self.ddgs_end_point,
                                             params=payload)
         # 解析HTML字符串
         tree = etree.HTML(resp_content)
@@ -78,7 +80,7 @@ class DDGS(Client):
             priority = page * 100
             params["s"] = f"{s}"
             # print(payload)
-            resp_content = await self._aget_url("GET", "https://links.duckduckgo.com/d.js", params=params)
+            resp_content = await self._aget_url("GET", f"{self.ddgslink_end_point}/d.js", params=params)
             page_data = _text_extract_json(resp_content, keywords)
 
             for row in page_data:

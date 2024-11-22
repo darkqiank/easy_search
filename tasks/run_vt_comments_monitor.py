@@ -43,7 +43,7 @@ connection_pool = psycopg2.pool.ThreadedConnectionPool(1, 20,
                                                        port=port)
 
 # 创建线程锁
-lock = threading.Lock()
+# lock = threading.Lock()
 
 
 def get_rand_vt_end_point():
@@ -68,12 +68,12 @@ try:
     # 创建游标对象
     cur = conn.cursor()
     res = []
-    with VT(timeout=20, vt_end_point="https://www.virustotal.com/") as vt:
+    with VT(proxies="socks5://127.0.0.1:10808", timeout=20, vt_end_point="https://www.virustotal.com/") as vt:
         res.extend(vt.api(input_str="comments"))
 
     for user in users:
         print(user)
-        with VT(timeout=20, vt_end_point="https://www.virustotal.com/") as vt:
+        with VT(proxies="socks5://127.0.0.1:10808", timeout=20, vt_end_point="https://www.virustotal.com/") as vt:
             res.extend(vt.api(input_str=user))
 
     for record in res:
@@ -132,28 +132,27 @@ def process_src_id(src_id):
     success = False
     print(src_id)
     try:
-        with lock:
-            cur = conn.cursor()
-            # 检查是否已存在 src_id 数据
-            cur.execute("SELECT 1 FROM vt_reports WHERE id = %s LIMIT 1", (src_id,))
-            exists = cur.fetchone()
+        cur = conn.cursor()
+        # 检查是否已存在 src_id 数据
+        cur.execute("SELECT 1 FROM vt_reports WHERE id = %s LIMIT 1", (src_id,))
+        exists = cur.fetchone()
 
-            if exists:
-                print(f"src_id {src_id} 已存在，跳过")
-            else:
-                with VT(proxies="socks5://127.0.0.1:10808", timeout=10, vt_end_point=get_rand_vt_end_point()) as vt:
-                    res = vt.api(input_str=src_id)
-                    cur.execute(
-                        """
-                        INSERT INTO vt_reports (id, data, create_time)
-                        VALUES (%s, %s, %s)
-                        ON CONFLICT (id) DO NOTHING
-                        """,
-                        (src_id, json.dumps(res, ensure_ascii=False), create_time)
-                    )
-                conn.commit()
-                print("保存成功")
-                success = True
+        if exists:
+            print(f"src_id {src_id} 已存在，跳过")
+        else:
+            with VT(proxies="socks5://127.0.0.1:10808", timeout=10, vt_end_point=get_rand_vt_end_point()) as vt:
+                res = vt.api(input_str=src_id)
+                cur.execute(
+                    """
+                    INSERT INTO vt_reports (id, data, create_time)
+                    VALUES (%s, %s, %s)
+                    ON CONFLICT (id) DO NOTHING
+                    """,
+                    (src_id, json.dumps(res, ensure_ascii=False), create_time)
+                )
+            conn.commit()
+            print("保存成功")
+            success = True
     except Exception as e:
         print("保存失败", e)
     finally:

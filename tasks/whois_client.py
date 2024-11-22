@@ -9,12 +9,13 @@ import csv
 import tldextract
 from collections import defaultdict, deque
 from tqdm import tqdm
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor, as_completed
 import concurrent.futures
 import time
 import threading
 from dotenv import load_dotenv
 import os
+
 
 # 加载 .env 文件
 load_dotenv()
@@ -46,6 +47,7 @@ tps = 60
 
 # whois的请求接口
 whois_end_point = "http://127.0.0.1:5007/"
+whois_end_point_en = "http://127.0.0.1:5008/"
 
 
 def turn_to_register_domain(domain):
@@ -64,6 +66,64 @@ def get_domain_dict(domains):
         # 将域名添加到对应的顶级域名列表中
         domain_dict[tld].append(domain)
     return domain_dict
+
+
+def preprocess_domains(domains):
+    domain_dict = defaultdict(deque)
+    n = 0
+    for domain in tqdm(domains, desc="取主域名"):
+        domain = str(domain)
+        extracted = tldextract.extract(domain)
+        tld = extracted.suffix
+        sub = extracted.domain
+        if sub and tld:
+            domain_dict[tld].append(domain)
+            n+=1
+
+    # 按tld均匀排序
+    new_dms = []
+    progress_bar = tqdm(total=n, desc="按tld均匀排序")
+    while domain_dict:
+        keys_to_remove = []
+        for tld in list(domain_dict.keys()):
+            new_dms.append(domain_dict[tld].popleft())
+            # 更新进度条
+            progress_bar.update(1)
+            if not domain_dict[tld]:
+                keys_to_remove.append(tld)
+        for tld in keys_to_remove:
+            del domain_dict[tld]
+
+    progress_bar.close()
+    print(f"查询数据库{len(new_dms)}")
+    existing_domains = look_in_db(new_dms)
+    print(f"查询成功{len(existing_domains)}")
+    new_dms_final = []
+    for dm in tqdm(new_dms, desc="最终聚合"):
+        if dm not in existing_domains:
+            new_dms_final.append(dm)
+
+    return new_dms_final
+
+
+def parallel_pre_process_domains(domains):
+    # 创建进程池
+    num_workers = 10
+    # 分割数据
+    chunk_size = len(domains) // num_workers
+    chunks = [domains[i:i + chunk_size] for i in range(0, len(domains), chunk_size)]
+
+    with ProcessPoolExecutor(max_workers=num_workers) as executor:
+        # 提交所有任务
+        futures = [executor.submit(preprocess_domains, chunk) for chunk in chunks]
+
+        combined_dms = []
+        # 使用 tqdm 显示进度条
+        for future in tqdm(as_completed(futures), total=len(futures), desc="Processing Domains"):
+            new_dms = future.result()
+            combined_dms.extend(new_dms)
+
+    return combined_dms
 
 
 def save_to_db(domain, data, level=0):
@@ -146,7 +206,7 @@ def save_to_db_batch(domains, datas, levels):
         connection_pool.putconn(conn)
 
 
-def fetch_data(domain, end_point=whois_end_point, ref=0, retry=0):
+def fetch_data(domain, end_point=whois_end_point, ref=1, retry=1):
     if ref > 0:
         api = f"{end_point}{domain}?ref={ref}"
     else:
@@ -158,7 +218,7 @@ def fetch_data(domain, end_point=whois_end_point, ref=0, retry=0):
         data = res.get("data")
         if response.status_code == 200:
             if data:
-                save_to_db(domain, json.dumps(data, ensure_ascii=False))
+                save_to_db(domain, json.dumps(data, ensure_ascii=False), level=ref)
                 return "Success"
         else:
             error_msg = res.get("error")
@@ -170,7 +230,7 @@ def fetch_data(domain, end_point=whois_end_point, ref=0, retry=0):
         if retry < 0:
             return
         else:
-            return fetch_data(domain, end_point, ref, retry)
+            return fetch_data(domain, whois_end_point_en, ref, retry)
 
 
 def look_in_db(domains):
@@ -197,29 +257,32 @@ def look_in_db(domains):
 def process_domains_in_batches(domains):
     batch_size = 500
     print(f"全部数据{len(domains)}条")
-    existing_domains = look_in_db(domains)
-    print(f"数据库中有{len(existing_domains)}条")
-    dms = []
-    for domain in domains:
-        if domain not in existing_domains:
-            dms.append(domain)
+    # existing_domains = look_in_db(domains)
+    # print(f"数据库中有{len(existing_domains)}条")
+    # dms = []
+    # for domain in domains:
+    #     if domain not in existing_domains:
+    #         dms.append(domain)
 
-    with open("E:\\apprun\\domain_files\\bad_20241031_zh.csv", "w") as f:
-        for dm in dms:
-            f.write(f"{dm}\n")
-        print(f"待检查数据写入文件")
+    # with open("E:\\apprun\\domain_files\\bad_20241031_zh.csv", "w") as f:
+    #     for dm in dms:
+    #         f.write(f"{dm}\n")
+    #     print(f"待检查数据写入文件")
 
-    domain_dict = get_domain_dict(dms)
-    # 按tld均匀排序
-    new_dms = []
-    while domain_dict:
-        keys_to_remove = []
-        for tld in list(domain_dict.keys()):
-            new_dms.append(domain_dict[tld].popleft())
-            if not domain_dict[tld]:
-                keys_to_remove.append(tld)
-        for tld in keys_to_remove:
-            del domain_dict[tld]
+    # domain_dict = get_domain_dict(dms)
+    # # 按tld均匀排序
+    # new_dms = []
+    # while domain_dict:
+    #     keys_to_remove = []
+    #     for tld in list(domain_dict.keys()):
+    #         new_dms.append(domain_dict[tld].popleft())
+    #         if not domain_dict[tld]:
+    #             keys_to_remove.append(tld)
+    #     for tld in keys_to_remove:
+    #         del domain_dict[tld]
+
+    # 预处理数据
+    new_dms = parallel_pre_process_domains(domains)
 
     dm_num = len(new_dms)
     print(f"待查询{dm_num}条")
@@ -254,7 +317,7 @@ def process_domains_in_batches(domains):
                         success_num += 1
             print(f"whois successed/roll_in_num/processed/all {success_num}/{roll_in_num}/{processed_num}/{dm_num}")
             # 限制每秒的请求次数
-            time.sleep(max(0.0, start_time + 1 - time.time()))
+            # time.sleep(max(0.0, start_time + 1 - time.time()))
 
     return success_num
 
@@ -286,12 +349,12 @@ if __name__ == "__main__":
             domains = df[0].tolist()  # Assuming the first column contains the domain data
 
     print(f'共{len(domains)}个域名')
-    r_domains = []
-    for dm in domains:
-        r_dm = turn_to_register_domain(dm)
-        if r_dm and r_dm not in r_domains:
-            r_domains.append(r_dm)
+    # r_domains = []
+    # for dm in domains:
+    #     r_dm = turn_to_register_domain(dm)
+    #     if r_dm and r_dm not in r_domains:
+    #         r_domains.append(r_dm)
 
     for i in range(turns):
         print(f"第{i}次循环：")
-        process_domains_in_batches(r_domains)
+        process_domains_in_batches(domains)
