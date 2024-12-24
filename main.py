@@ -51,6 +51,7 @@ async def search_github(q: str, l: Optional[str] = 'cn-zh', m: Optional[int] = 1
 @app.get("/search/vt/")
 async def search_vt(q: str):
     proxy_url = os.getenv('PROXY_URL', None)  # 默认值是你原来硬编码的代理路径
+    print(proxy_url)
     try:
         with VT(proxies=proxy_url, timeout=30) as vt:
             res = vt.api(q)

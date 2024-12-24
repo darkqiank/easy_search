@@ -11,7 +11,7 @@ def get_rand_ddgs_end_point():
     end_points = ["https://duckduckgo.com",
                      "https://ddgs.catflix.cn",
                      ]
-    weights = [0.5, 0.5]
+    weights = [0, 0.5]
     end_point = random.choices(end_points, weights=weights, k=1)[0]
     return end_point
 
@@ -20,7 +20,7 @@ def get_rand_ddgslink_end_point():
     end_points = ["https://links.duckduckgo.com",
                      "https://ddgslink.catflix.cn",
                      ]
-    weights = [0.5, 0.5]
+    weights = [0, 0.5]
     end_point = random.choices(end_points, weights=weights, k=1)[0]
     return end_point
 
