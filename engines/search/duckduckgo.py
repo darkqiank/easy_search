@@ -112,7 +112,7 @@ def _text_extract_json(html_bytes: bytes, keywords: str) -> List[Dict[str, str]]
         start = html_bytes.index(b"DDG.pageLayout.load('d',") + 24
         end = html_bytes.index(b");DDG.duckbar.load", start)
         data = html_bytes[start:end]
-        print(data)
+        # print(data)
         result: List[Dict[str, str]] = json_loads(data)
         return result
     except Exception as ex:
