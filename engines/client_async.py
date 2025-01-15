@@ -4,8 +4,13 @@ from concurrent.futures import ThreadPoolExecutor
 from contextlib import suppress
 from types import TracebackType
 from typing import Dict, Optional, Union
+
+from cffi.commontypes import resolve_common_type
+
 from .exceptions import ClientSearchException, RatelimitException, TimeoutException, NotFoundException
 from curl_cffi import requests
+import gzip
+import io
 
 logger = logging.getLogger("engines.AsyncClient")
 
@@ -67,7 +72,11 @@ class AsyncClient:
     ) -> bytes:
         try:
             resp = await self._asession.request(*args, **kwargs)
-            resp_content: bytes = resp.content
+            if resp.headers.get('Content-Encoding') == 'gzip':
+                with gzip.GzipFile(fileobj=io.BytesIO(resp.content)) as decompressed_file:
+                    resp_content = decompressed_file.read()
+            else:
+                resp_content: bytes = resp.content
         except Exception as ex:
             if "time" in str(ex).lower():
                 raise TimeoutException(f"{type(ex).__name__}: {ex}") from ex

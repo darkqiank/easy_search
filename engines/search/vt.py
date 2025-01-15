@@ -45,6 +45,10 @@ class VT(Client):
             elif hash_type == 'SHA-256':
                 return self._run_async_in_thread(self._file_api(input_str))
 
+    def cf_api(self, input_str: str) -> Any:
+        return self._run_async_in_thread(self._cf_api(input_str))
+
+
     @staticmethod
     async def run_task_with_retries(task_func, *args, retries=3, retry_wait=2):
         attempt = 0
@@ -392,6 +396,60 @@ class VT(Client):
         result = await self.run_task_with_retries(_get_comments, )
         return result
 
+    async def _cf_api(self, input_str: str):
+        url = f"https://vt.451964719.xyz/"
+
+        if is_ip_address(input_str):
+            payload = {
+                "q": input_str,
+                "apiEndpoints": {
+                    "analyse": f"/ui/ip_addresses/{input_str}",
+                    "resolutions": f"/ui/ip_addresses/{input_str}/resolutions",
+                    "referrer_files": f"/ui/ip_addresses/{input_str}/referrer_files",
+                    "communicating_files": f"/ui/ip_addresses/{input_str}/communicating_files",
+                    "comments": f"/ui/ip_addresses/{input_str}/comments?relationships=item%2Cauthor",
+                }
+            }
+        elif is_domain(input_str):
+            payload = {
+                "q": input_str,
+                "apiEndpoints": {
+                    "analyse": f"/ui/domains/{input_str}",
+                    "resolutions": f"/ui/domains/{input_str}/resolutions",
+                    "referrer_files": f"/ui/domains/{input_str}/referrer_files",
+                    "communicating_files": f"/ui/domains/{input_str}/communicating_files",
+                    "subdomains": f"/ui/domains/{input_str}/subdomains?relationships=resolutions",
+                    "comments": f"/ui/domains/{input_str}/comments?relationships=item%2Cauthor",
+                }
+            }
+        else:
+            hash_type = identify_hash(input_str)
+            if hash_type in ('MD5', 'SHA-1'):
+                payload = {
+                    "q": input_str,
+                    "apiEndpoints": {
+                        "search_result": f"/ui/search?limit=20&relationships%5Bcomment%5D=author%2Citem&query={input_str}"
+                    }
+                }
+            elif hash_type == 'SHA-256':
+                payload = {
+                    "q": input_str,
+                    "apiEndpoints": {
+                        "analyse": f"/ui/files/{input_str}",
+                        "contacted_urls": f"/ui/files/{input_str}/contacted_urls",
+                        "contacted_domains": f"/ui/files/{input_str}/contacted_domains",
+                        "contacted_ips": f"/ui/files/{input_str}/contacted_ips",
+                        "behaviour": f"/ui/files/{input_str}/behaviour_mitre_trees",
+                        "file_behaviour": f"/ui/files/{input_str}/behaviours?limit=40",
+                        "comments": f"/ui/files/{input_str}/comments?relationships=item%2Cauthor",
+                    }
+                }
+
+        impersonate, headers = random_vt_ua_headers()
+        res= await self._aget_url("POST", url, impersonate=impersonate, headers=headers,
+                                  data=orjson.dumps(payload))
+        res_json = orjson.loads(res)
+        return res_json
 
 
 def is_ip_address(input_str):
