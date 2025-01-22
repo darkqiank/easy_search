@@ -8,6 +8,8 @@ from typing import Any
 import tldextract
 import ipaddress
 import re
+from urllib.parse import quote
+from urllib.parse import urlparse, urlunparse, urlencode
 
 from engines.exceptions import NotFoundException
 from engines.random_tools import random_impersonate, generate_random_public_ip
@@ -17,6 +19,7 @@ class VT(Client):
 
     def __init__(self, *args, **kwargs):
         self.vt_end_point = kwargs.pop('vt_end_point', 'https://www.virustotal.com/')
+        self.cf_end_point = kwargs.pop('cf_end_point', 'https://vt.451964719.xyz/')
         super().__init__(*args, **kwargs)
         self._asession.headers["sec-ch-ua-mobile"] = "?0"
         self._asession.headers["content-type"] = "application/json"
@@ -45,8 +48,8 @@ class VT(Client):
             elif hash_type == 'SHA-256':
                 return self._run_async_in_thread(self._file_api(input_str))
 
-    def cf_api(self, input_str: str) -> Any:
-        return self._run_async_in_thread(self._cf_api(input_str))
+    def cf_api(self, input_str: str, dtype: str = None, cursor: str = None) -> Any:
+        return self._run_async_in_thread(self._cf_api(input_str, dtype, cursor))
 
 
     @staticmethod
@@ -396,60 +399,73 @@ class VT(Client):
         result = await self.run_task_with_retries(_get_comments, )
         return result
 
-    async def _cf_api(self, input_str: str):
-        url = f"https://vt.451964719.xyz/"
-
+    async def _cf_api(self, input_str: str, dtype=None, cursor=None):
+        apiEndpoints = {}
         if is_ip_address(input_str):
-            payload = {
-                "q": input_str,
-                "apiEndpoints": {
-                    "analyse": f"/ui/ip_addresses/{input_str}",
-                    "resolutions": f"/ui/ip_addresses/{input_str}/resolutions",
-                    "referrer_files": f"/ui/ip_addresses/{input_str}/referrer_files",
-                    "communicating_files": f"/ui/ip_addresses/{input_str}/communicating_files",
-                    "comments": f"/ui/ip_addresses/{input_str}/comments?relationships=item%2Cauthor",
-                }
+            apiEndpoints = {
+                "analyse": f"/ui/ip_addresses/{input_str}",
+                "resolutions": f"/ui/ip_addresses/{input_str}/resolutions",
+                "referrer_files": f"/ui/ip_addresses/{input_str}/referrer_files",
+                "communicating_files": f"/ui/ip_addresses/{input_str}/communicating_files",
+                "comments": f"/ui/ip_addresses/{input_str}/comments?relationships=item%2Cauthor",
             }
         elif is_domain(input_str):
-            payload = {
-                "q": input_str,
-                "apiEndpoints": {
-                    "analyse": f"/ui/domains/{input_str}",
-                    "resolutions": f"/ui/domains/{input_str}/resolutions",
-                    "referrer_files": f"/ui/domains/{input_str}/referrer_files",
-                    "communicating_files": f"/ui/domains/{input_str}/communicating_files",
-                    "subdomains": f"/ui/domains/{input_str}/subdomains?relationships=resolutions",
-                    "comments": f"/ui/domains/{input_str}/comments?relationships=item%2Cauthor",
-                }
+            apiEndpoints = {
+                "analyse": f"/ui/domains/{input_str}",
+                "resolutions": f"/ui/domains/{input_str}/resolutions",
+                "referrer_files": f"/ui/domains/{input_str}/referrer_files",
+                "communicating_files": f"/ui/domains/{input_str}/communicating_files",
+                "subdomains": f"/ui/domains/{input_str}/subdomains?relationships=resolutions",
+                "comments": f"/ui/domains/{input_str}/comments?relationships=item%2Cauthor",
             }
         else:
             hash_type = identify_hash(input_str)
             if hash_type in ('MD5', 'SHA-1'):
-                payload = {
-                    "q": input_str,
-                    "apiEndpoints": {
-                        "search_result": f"/ui/search?limit=20&relationships%5Bcomment%5D=author%2Citem&query={input_str}"
-                    }
+                apiEndpoints = {
+                    "search_result": f"/ui/search?limit=20&relationships%5Bcomment%5D=author%2Citem&query={input_str}"
                 }
             elif hash_type == 'SHA-256':
-                payload = {
-                    "q": input_str,
-                    "apiEndpoints": {
-                        "analyse": f"/ui/files/{input_str}",
-                        "contacted_urls": f"/ui/files/{input_str}/contacted_urls",
-                        "contacted_domains": f"/ui/files/{input_str}/contacted_domains",
-                        "contacted_ips": f"/ui/files/{input_str}/contacted_ips",
-                        "behaviour": f"/ui/files/{input_str}/behaviour_mitre_trees",
-                        "file_behaviour": f"/ui/files/{input_str}/behaviours?limit=40",
-                        "comments": f"/ui/files/{input_str}/comments?relationships=item%2Cauthor",
-                    }
+                apiEndpoints = {
+                    "analyse": f"/ui/files/{input_str}",
+                    "contacted_urls": f"/ui/files/{input_str}/contacted_urls",
+                    "contacted_domains": f"/ui/files/{input_str}/contacted_domains",
+                    "contacted_ips": f"/ui/files/{input_str}/contacted_ips",
+                    "behaviour": f"/ui/files/{input_str}/behaviour_mitre_trees",
+                    "file_behaviour": f"/ui/files/{input_str}/behaviours?limit=40",
+                    "comments": f"/ui/files/{input_str}/comments?relationships=item%2Cauthor",
                 }
 
+        if dtype is None:
+            payload = {
+                "q": input_str,
+                "apiEndpoints": apiEndpoints
+            }
+        else:
+            apiEndpoint = apiEndpoints.get(dtype)
+            apiEndpoint = add_cursor_to_endpoints(apiEndpoint, cursor) if cursor is not None else apiEndpoint
+            print(apiEndpoint)
+            payload = {
+                "q": input_str,
+                "apiEndpoints": {
+                    dtype: apiEndpoint
+                }
+        }
+
         impersonate, headers = random_vt_ua_headers()
-        res= await self._aget_url("POST", url, impersonate=impersonate, headers=headers,
+        res= await self._aget_url("POST", self.cf_end_point, impersonate=impersonate, headers=headers,
                                   data=orjson.dumps(payload))
         res_json = orjson.loads(res)
         return res_json
+
+
+def add_cursor_to_endpoints(url, cursor):
+    parsed_url = urlparse(url)
+    query_dict = dict()
+    if parsed_url.query:
+        query_dict = dict(q.split('=') for q in parsed_url.query.split('&'))
+    query_dict['cursor'] = cursor
+    new_query = urlencode(query_dict)
+    return urlunparse(parsed_url._replace(query=new_query))
 
 
 def is_ip_address(input_str):
@@ -521,3 +537,4 @@ def get_vt_anti():
 # 调用函数并打印结果
 # print(get_vt_anti())
 print(categorize_input('baidu.com'))
+print(add_cursor_to_endpoints("/sdsd/dsds?x=1", "dsdsdu=="))
