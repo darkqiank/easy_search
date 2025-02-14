@@ -4,6 +4,7 @@ from concurrent.futures import ThreadPoolExecutor
 from contextlib import suppress
 from types import TracebackType
 from typing import Dict, Optional, Union
+import platform
 
 from cffi.commontypes import resolve_common_type
 
@@ -33,6 +34,8 @@ class AsyncClient:
             allow_redirects=False,
             verify=False
         )
+        # 获取当前操作系统
+        self.current_os = platform.system().lower()
         self._exception_event = asyncio.Event()
         # self._exit_done = False
 
@@ -72,7 +75,7 @@ class AsyncClient:
     ) -> bytes:
         try:
             resp = await self._asession.request(*args, **kwargs)
-            if resp.headers.get('Content-Encoding') == 'gzip':
+            if self.current_os == 'windows' and resp.headers.get('Content-Encoding') == 'gzip':
                 with gzip.GzipFile(fileobj=io.BytesIO(resp.content)) as decompressed_file:
                     resp_content = decompressed_file.read()
             else:
