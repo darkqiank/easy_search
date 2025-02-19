@@ -454,6 +454,9 @@ class VT(Client):
         impersonate, headers = random_vt_ua_headers()
         res= await self._aget_url("POST", self.cf_end_point, impersonate=impersonate, headers=headers,
                                   data=orjson.dumps(payload))
+        if isinstance(res, bytes):
+            res = res.decode("utf-8", errors="replace")  # 替换错误字符
+            print(res)
         res_json = orjson.loads(res)
         return res_json
 

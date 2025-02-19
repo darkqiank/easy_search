@@ -72,8 +72,10 @@ async def search_ddgs(q: str, l: Optional[str] = 'cn-zh', m: Optional[int] = 10)
     proxy_url = os.getenv('PROXY_URL', None)  # 默认值是你原来硬编码的代理路径
     try:
         with DDGS(proxies=proxy_url,
-                  ddgs_end_point='https://proxy.451964719.xyz/proxy/https://duckduckgo.com',
-                  ddgslink_end_point='https://proxy.451964719.xyz/proxy/https://links.duckduckgo.com',
+                  # ddgs_end_point='https://proxy.451964719.xyz/proxy/https://duckduckgo.com',
+                  # ddgslink_end_point='https://proxy.451964719.xyz/proxy/https://links.duckduckgo.com',
+                    ddgs_end_point='https://ddgs.catflix.cn',
+                    ddgslink_end_point='https://ddgslink.catflix.cn',
                     timeout=20) as ddgs:
             res = ddgs.text(q, max_results=m , region=l,)
             return res

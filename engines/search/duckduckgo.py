@@ -5,6 +5,8 @@ from engines.exceptions import ClientSearchException
 from typing import Dict, List, Optional, Any
 import asyncio
 from itertools import islice
+
+from engines.random_tools import random_impersonate, generate_random_public_ip
 from engines.utils import _normalize, _normalize_url, json_loads
 
 
@@ -21,7 +23,9 @@ class DDGS(Client):
 
     async def _get_preload_params(self, keywords: str, payload: dict) -> dict:
         """Get vqd value for a search query."""
+        impersonate, headers = random_ddgs_ua_headers()
         resp_content = await self._aget_url("GET", self.ddgs_end_point,
+                                            impersonate=impersonate, headers=headers,
                                             params=payload)
         # 解析HTML字符串
         tree = etree.HTML(resp_content)
@@ -80,7 +84,11 @@ class DDGS(Client):
             priority = page * 100
             params["s"] = f"{s}"
             # print(payload)
-            resp_content = await self._aget_url("GET", f"{self.ddgslink_end_point}/d.js", params=params)
+            impersonate, headers = random_ddgs_ua_headers()
+            resp_content = await self._aget_url("GET", f"{self.ddgslink_end_point}/d.js",
+                                                impersonate=impersonate,
+                                                headers=headers,
+                                                params=params)
             page_data = _text_extract_json(resp_content, keywords)
 
             for row in page_data:
@@ -117,3 +125,11 @@ def _text_extract_json(html_bytes: bytes, keywords: str) -> List[Dict[str, str]]
         return result
     except Exception as ex:
         raise ClientSearchException(f"_text_extract_json() {keywords=} {type(ex).__name__}: {ex}") from ex
+
+def random_ddgs_ua_headers():
+    impersonate, ua_headers = random_impersonate()
+    fake_ip = generate_random_public_ip()
+    ua_headers["X-Forwarded-For"] = fake_ip
+    ua_headers["X-Real-IP"] = fake_ip
+    ua_headers["X-Forwarded-Host"] = "https://duckduckgo.com"
+    return impersonate, ua_headers

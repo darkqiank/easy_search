@@ -25,6 +25,7 @@ for i in range(1):
         # res = vt.api(input_str='413d0aacddad41105f9f04de12cae9420919083796ed856df47ee2c7b3767fda')
         # res = vt.cf_api(input_str='413d0aacddad41105f9f04de12cae9420919083796ed856df47ee2c7b3767fda')
         res = vt.cf_api(input_str='baidu.com')
+        print(res)
         # res = vt.api(input_str='baidu.com')
         # res = vt.cf_api(input_str='baidu.com')
         # res = vt.api(input_str='comments')
