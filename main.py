@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Response
+from fastapi import FastAPI, HTTPException, Response, APIRouter, Depends,  Request, status
 import gzip
 import json
 import orjson
@@ -6,6 +6,9 @@ from engines import DDGS, BING, GITHUB, VT
 from typing import Optional
 import os
 import random
+
+
+DEFAULT_API_KEY = os.getenv("DEFAULT_API_KEY", None)
 app = FastAPI()
 
 
@@ -13,7 +16,24 @@ def gzip_compress(data: bytes) -> bytes:
     return gzip.compress(data)
 
 
-@app.get("/search/bing/")
+# 定义API Key验证逻辑
+async def verify_api_key(request: Request):
+    if DEFAULT_API_KEY is None:
+        # 如果未设置key，则默认不需要key
+        return "default_api_key"
+    else:
+        api_key = request.headers.get("X-API-Key")
+        if api_key != DEFAULT_API_KEY:  # 替换为你的实际API Key
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid API Key"
+            )
+        return api_key
+
+auth_router = APIRouter(dependencies=[Depends(verify_api_key)])
+
+
+@auth_router.get("/search/bing/")
 async def search_bing(q: str, l: Optional[str] = 'cn-zh', m: Optional[int] = 10):
     proxy_url = os.getenv('PROXY_URL', None)  # 默认值是你原来硬编码的代理路径
     try:
@@ -24,7 +44,7 @@ async def search_bing(q: str, l: Optional[str] = 'cn-zh', m: Optional[int] = 10)
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/search/ddgs/")
+@auth_router.get("/search/ddgs/")
 async def search_ddgs(q: str, l: Optional[str] = 'cn-zh', m: Optional[int] = 10):
     proxy_url = os.getenv('PROXY_URL', None)  # 默认值是你原来硬编码的代理路径
     try:
@@ -38,7 +58,7 @@ async def search_ddgs(q: str, l: Optional[str] = 'cn-zh', m: Optional[int] = 10)
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/search/github/")
+@auth_router.get("/search/github/")
 async def search_github(q: str, l: Optional[str] = 'cn-zh', m: Optional[int] = 10):
     proxy_url = os.getenv('PROXY_URL', None)  # 默认值是你原来硬编码的代理路径
     try:
@@ -50,7 +70,7 @@ async def search_github(q: str, l: Optional[str] = 'cn-zh', m: Optional[int] = 1
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/search/vt/")
+@auth_router.get("/search/vt/")
 async def search_vt(q: str):
     proxy_url = os.getenv('PROXY_URL', None)  # 默认值是你原来硬编码的代理路径
     print(proxy_url)
@@ -67,13 +87,12 @@ async def search_vt(q: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/tip/search/")
+
+@auth_router.get("/tip/search/")
 async def search_ddgs(q: str, l: Optional[str] = 'cn-zh', m: Optional[int] = 10):
     proxy_url = os.getenv('PROXY_URL', None)  # 默认值是你原来硬编码的代理路径
     try:
         with DDGS(proxies=proxy_url,
-                  # ddgs_end_point='https://proxy.451964719.xyz/proxy/https://duckduckgo.com',
-                  # ddgslink_end_point='https://proxy.451964719.xyz/proxy/https://links.duckduckgo.com',
                     ddgs_end_point='https://ddgs.catflix.cn',
                     ddgslink_end_point='https://ddgslink.catflix.cn',
                     timeout=20) as ddgs:
@@ -83,7 +102,7 @@ async def search_ddgs(q: str, l: Optional[str] = 'cn-zh', m: Optional[int] = 10)
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/tip/vt/")
+@auth_router.get("/tip/vt/")
 async def search_tip_vt(q: str, dtype: str = 'communicating_files', cursor: Optional[str] = None):
     proxy_url = os.getenv('PROXY_URL', None)  # 默认值是你原来硬编码的代理路径
     try:
@@ -115,3 +134,5 @@ async def search_tip_vt(q: str, dtype: str = 'communicating_files', cursor: Opti
                 raise Exception("输入参数错误，dtype必须为communicating_files")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+app.include_router(auth_router)
