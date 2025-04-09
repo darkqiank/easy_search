@@ -55,7 +55,10 @@ async def search_ddgs(q: str, l: Optional[str] = 'cn-zh', m: Optional[int] = 10)
             res = ddgs.text(q, max_results=m , region=l,)
             return res
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(
+            status_code=500, 
+            detail={"error": str(e), "status": "failed"}
+        )
 
 
 @auth_router.get("/search/github/")
@@ -67,7 +70,10 @@ async def search_github(q: str, l: Optional[str] = 'cn-zh', m: Optional[int] = 1
             res = github.text(keywords=q,)
             return res
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(
+            status_code=500, 
+            detail={"error": str(e), "status": "failed"}
+        )
 
 
 @auth_router.get("/search/vt/")
@@ -85,7 +91,10 @@ async def search_vt(q: str):
             return Response(content=compressed_data, media_type="application/json",
                             headers={"Content-Encoding": "gzip"})
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(
+            status_code=500, 
+            detail={"error": str(e), "status": "failed"}
+        )
 
 
 @auth_router.get("/tip/search/")
@@ -99,7 +108,10 @@ async def search_ddgs(q: str, l: Optional[str] = 'cn-zh', m: Optional[int] = 10)
             res = ddgs.text(q, max_results=m , region=l,)
             return res
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(
+            status_code=500, 
+            detail={"error": str(e), "status": "failed"}
+        )
 
 
 @auth_router.get("/tip/vt/")
@@ -133,6 +145,9 @@ async def search_tip_vt(q: str, dtype: str = 'communicating_files', cursor: Opti
             else:
                 raise Exception("输入参数错误，dtype必须为communicating_files")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(
+            status_code=500, 
+            detail={"error": str(e), "status": "failed"}
+        )
 
 app.include_router(auth_router)
