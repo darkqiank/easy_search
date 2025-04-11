@@ -98,13 +98,14 @@ async def search_vt(q: str):
 
 
 @auth_router.get("/tip/search/")
-async def search_ddgs(q: str, l: Optional[str] = 'cn-zh', m: Optional[int] = 10):
+async def search_ddgs(q: str, l: Optional[str] = 'wt-wt', m: Optional[int] = 10):
     proxy_url = os.getenv('PROXY_URL', None)  # 默认值是你原来硬编码的代理路径
     try:
         with DDGS(proxies=proxy_url,
                     ddgs_end_point='https://ddgs.catflix.cn',
                     ddgslink_end_point='https://ddgslink.catflix.cn',
                     timeout=20) as ddgs:
+            q = f'"{q}"'
             res = ddgs.text(q, max_results=m , region=l,)
             return res
     except Exception as e:
