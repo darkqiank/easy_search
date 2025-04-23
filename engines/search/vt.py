@@ -536,7 +536,6 @@ def get_vt_anti():
 
     return encoded_string
 
-
 # 调用函数并打印结果
 # print(get_vt_anti())
 print(categorize_input('baidu.com'))

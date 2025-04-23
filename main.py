@@ -151,4 +151,68 @@ async def search_tip_vt(q: str, dtype: str = 'communicating_files', cursor: Opti
             detail={"error": str(e), "status": "failed"}
         )
 
+@auth_router.get("/tip/vt/file/{sha256}")
+async def search_file_vt(sha256: str):
+    proxy_url = os.getenv('PROXY_URL', None)
+    if not sha256 or len(sha256) != 64:
+        raise HTTPException(
+            status_code=400,
+            detail={"error": "Invalid SHA256 hash - must be 64 characters", "status": "failed"}
+        )
+    try:
+        with VT(proxies=proxy_url,
+                timeout=10,
+                cf_end_point='https://vt.451964719.xyz/') as vt:
+            res = vt.cf_api(input_str=sha256)
+            if not res:
+                raise HTTPException(
+                    status_code=404,
+                    detail={"error": "File not found", "status": "failed"}
+                )
+            
+            # Extract data from nested structure
+            analyse_data = res.get("analyse", {}).get("data", {}).get("attributes", {})
+            behaviour_data = res.get("behaviour", {}).get("data", {})
+            last_analysis_results = analyse_data.get("last_analysis_results", {})
+            popular_threat_category = analyse_data.get("popular_threat_classification", {}).get("popular_threat_category", [])
+            if not popular_threat_category:
+                # 先找kaspersky
+                kaspersky_category = last_analysis_results.get("Kaspersky", {}).get("category", None)
+                kaspersky_result = last_analysis_results.get("Kaspersky", {}).get("result", None)
+                if kaspersky_category == "malicious" and kaspersky_result and kaspersky_result != "detected" and kaspersky_result != "":
+                    popular_threat_category.append({"value": kaspersky_result, "source": "Kaspersky", "count": 1})
+                else:
+                    # 再找其他av
+                    for k in last_analysis_results.keys():
+                        av_category = last_analysis_results.get(k, {}).get("category", None)
+                        av_result = last_analysis_results.get(k, {}).get("result", None)
+                        if av_category == "malicious" and av_result and av_result != "detected" and av_result != "":
+                            popular_threat_category.append({"value":av_result, "source": k, "count": 1})
+                            break
+
+            clean_res = {
+                "vt_hit": True,
+                "meaningful_name": analyse_data.get("meaningful_name"),
+                "type_tag": analyse_data.get("type_tag"),
+                "size": analyse_data.get("size"),
+                "sha256": analyse_data.get("sha256"),
+                "sha1": analyse_data.get("sha1"),
+                "md5": analyse_data.get("md5"),
+                "creation_date": analyse_data.get("creation_date"),
+                "last_submission_date": analyse_data.get("last_submission_date"),
+                "first_submission_date": analyse_data.get("first_submission_date"),
+                "behaviour_mitre_trees": behaviour_data,
+                "popular_threat_category": popular_threat_category,
+            }
+            return clean_res
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail={"error": str(e), "status": "failed"}
+        )
+
+
+    
+
+
 app.include_router(auth_router)
