@@ -6,23 +6,13 @@ from engines import DDGS, BING, GITHUB, VT
 from typing import Optional
 import os
 import random
-import aiofiles
 import logging
+from engines.utils import write_json_gzip_async, load_json_gzip_async
 
 
 DEFAULT_API_KEY = os.getenv("DEFAULT_API_KEY", None)
 app = FastAPI()
 
-# 异步读取json文件
-async def load_json_async(filepath: str):
-    async with aiofiles.open(filepath, mode='rb') as f:  # 必须以二进制读取
-        content = await f.read()
-        data = orjson.loads(content)
-        return data
-# 异步写入json文件
-async def write_json_async(filepath: str, data: dict):
-    async with aiofiles.open(filepath, mode='wb') as f:
-        await f.write(orjson.dumps(data))
 
 def gzip_compress(data: bytes) -> bytes:
     return gzip.compress(data)
@@ -169,7 +159,7 @@ async def search_file_vt(sha256: str):
     cache_dir = os.getenv('CACHE_DIR', './cache')
     if not os.path.exists(cache_dir):
         os.makedirs(cache_dir)
-    cache_file = os.path.join(cache_dir, f"{sha256}.json")
+    cache_file = os.path.join(cache_dir, f"{sha256}.gz")
             
     if not sha256 or len(sha256) != 64:
         raise HTTPException(
@@ -179,7 +169,7 @@ async def search_file_vt(sha256: str):
     try:
         if os.path.exists(cache_file):
             logging.info(f"Loading cache file: {cache_file}")
-            res = await load_json_async(cache_file)
+            res = await load_json_gzip_async(cache_file)
         else:
             with VT(proxies=proxy_url,
                     timeout=10,
@@ -190,7 +180,7 @@ async def search_file_vt(sha256: str):
                         status_code=404,
                         detail={"error": "File not found", "status": "failed"}
                     )
-                await write_json_async(cache_file, res)
+                await write_json_gzip_async(cache_file, res)
                 logging.info(f"Writing cache file: {cache_file}")
         
         # Extract data from nested structure
