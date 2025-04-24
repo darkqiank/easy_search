@@ -13,3 +13,5 @@ requests
 openai
 tenacity
 python-dotenv
+aiofiles
+logging
