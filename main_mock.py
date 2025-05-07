@@ -1,6 +1,5 @@
-from fastapi import FastAPI, HTTPException, Response, APIRouter, Depends, Request, status
+from fastapi import FastAPI, HTTPException, Response, APIRouter, Depends, Request, status, Query
 import gzip
-import orjson
 from typing import Optional
 from datetime import datetime, timedelta
 import random
@@ -13,7 +12,13 @@ def gzip_compress(data: bytes) -> bytes:
     return gzip.compress(data)
 
 async def verify_api_key(request: Request):
-    return "default_api_key"
+    api_key = request.headers.get("X-API-Key")
+    if api_key != "default_api_key":  # 替换为你的实际API Key
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid API Key"
+    )
+    return api_key
 
 auth_router = APIRouter(dependencies=[Depends(verify_api_key)])
 
