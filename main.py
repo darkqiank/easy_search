@@ -186,6 +186,15 @@ async def search_file_vt(sha256: str):
                         status_code=404,
                         detail={"error": "File not found", "status": "failed"}
                     )
+                if res.get("analyse", {}).get("error", None):
+                    # 返回原始错误码
+                    error_detail = res["analyse"].get("error", "Unknown error")
+                    error_status = res["analyse"].get("status", 500)
+                    raise HTTPException(
+                        status_code=error_status,
+                        detail={"error": error_detail, "status": error_status}
+                    )
+                    
                 await write_json_gzip_async(cache_file, res)
                 logging.info(f"Writing cache file: {cache_file}")
         
@@ -265,6 +274,8 @@ async def search_file_vt(sha256: str):
             "network_communication": network_communication_atts
         }
         return clean_res
+    except HTTPException as he:
+        raise he
     except Exception as e:
         raise HTTPException(
             status_code=500,

@@ -237,6 +237,10 @@ async def search_file_vt(sha256: str):
             status_code=400,
             detail={"error": "Invalid SHA256 hash - must be 64 characters", "status": "failed"}
         )
-    return MOCK_VT_FILE_DATA
+    
+    # 模拟的文件数据
+    new_data = MOCK_VT_FILE_DATA.copy()
+    new_data['sha256'] = sha256
+    return new_data
 
 app.include_router(auth_router)

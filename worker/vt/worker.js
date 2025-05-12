@@ -24,13 +24,28 @@ async function handleRequest(request) {
     // 并行请求所有 API 端点
     const responses = await Promise.all(
       endpointEntries.map(([key, endpoint]) =>
-        fetchData(request, endpoint).then(response => response.json().then(data => ({ key, data })))
+        fetchData(request, endpoint)
+          .then(response => {
+            if (response.ok) {
+              return response.json()
+                .then(data => ({ key, data, status: response.status }))
+                .catch(error => ({ key, error: error.message, status: response.status }));
+            } else {
+              return { key, error: response.statusText, status: response.status };
+            }
+          })
+          .catch(error => ({ key, error: error.message, status: error.status || 500 }))
       )
     );
 
     // 将结果拼接为 { key: apiEndpoint的返回结果, ... } 格式
-    const combinedData = responses.reduce((acc, { key, data }) => {
-      acc[key] = data;
+    const combinedData = responses.reduce((acc, response) => {
+      const { key } = response;
+      if ('error' in response) {
+        acc[key] = { error: response.error, status: response.status };
+      } else if ('data' in response) {
+        acc[key] = response.data;
+      }
       return acc;
     }, {});
 
@@ -75,11 +90,7 @@ async function fetchData(request, endpoint) {
   });
 
   const response = await fetch(modifiedRequest);
-
-  // 检查响应状态
-  if (!response.ok) {
-    throw new Error(`Failed to fetch ${actualUrl}: ${response.statusText}`);
-  }
-
+  
+  // 不再抛出错误，而是返回响应对象，让调用者处理错误状态
   return response;
 }
