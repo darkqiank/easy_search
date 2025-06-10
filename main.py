@@ -9,7 +9,9 @@ import random
 import logging
 import re
 from engines.utils import write_json_gzip_async, load_json_gzip_async
-
+import ipaddress
+import tldextract
+import hashlib
 
 DEFAULT_API_KEY = os.getenv("DEFAULT_API_KEY", None)
 app = FastAPI()
@@ -124,14 +126,70 @@ async def search_ddgs(q: str, l: Optional[str] = 'cn-zh', m: Optional[int] = 10)
         )
 
 
+def check_q_type(q: str):
+    def is_ip_address(input_str):
+        try:
+            ipaddress.ip_address(input_str)
+            return True
+        except ValueError:
+            return False
+
+    def is_domain(input_str):
+        extracted = tldextract.extract(input_str)
+        return bool(extracted.domain) and bool(extracted.suffix)
+    # 判断是否为域名
+    if is_domain(q):
+        return 'DOMAIN'
+    # 判断是否为ip地址
+    if is_ip_address(q):
+        return 'IP'
+    # 判断是否为url
+    if q.startswith('http'):
+        return 'URL'
+    # 其他文件类型
+    if re.match(r'^[a-f0-9]{32}$', q, re.IGNORECASE):
+        return 'MD5'
+    elif re.match(r'^[a-f0-9]{40}$', q, re.IGNORECASE):
+        return 'SHA-1'
+    elif re.match(r'^[a-f0-9]{64}$', q, re.IGNORECASE):
+        return 'SHA-256'
+    else:
+        return None
+
 @auth_router.get("/tip/vt/")
 async def search_tip_vt(q: str, dtype: Optional[str] = None, cursor: Optional[str] = None):
+    q_type = check_q_type(q)
+    q_id = q
+    if q_type == 'URL':
+        q_id = hashlib.sha256(q.encode()).hexdigest()
+    elif q_type in ['MD5', 'SHA-1']:
+        # 获取真正的fileid
+        search_res = await read_from_cf_api(q)
+        search_items = search_res.get("search_result", {}).get("data", [])
+        if len(search_items) > 0:
+            q_id = search_items[0].get('id')
+        else:
+            raise HTTPException(
+                status_code=404,
+                detail={"error": "File not found", "status": "failed"}
+            )
+
     if dtype:
         # 如果dtype不为空，则进行单独进行dtype和cursor查询
-        return await tip_fetch_file_cursor(q, dtype, cursor)
+        if q_type not in ["MD5", 'SHA-1', 'SHA-256', 'IP', 'DOMAIN']:
+            raise HTTPException(
+                status_code=400,
+                detail={"error": '不支持的数据类型，仅支持 MD5, SHA-1, SHA-256, IP, DOMAIN', "status": "failed"}
+            ) 
+        return await tip_fetch_file_cursor(q_id, dtype, cursor)
     else:
         # 如果dtype为空，则进行fileid查询
-        return await tip_fetch_file_info(q)
+        if q_type not in ["MD5", 'SHA-1', 'SHA-256']:
+            raise HTTPException(
+                status_code=400,
+                detail={"error": '不支持的数据类型，仅支持 MD5, SHA-1, SHA-256', "status": "failed"}
+            ) 
+        return await tip_fetch_file_info(q_id)
 
 
 def handle_communicating_files(data: dict) -> dict:
@@ -200,6 +258,29 @@ def handle_contacted_urls(data: dict) -> dict:
         ],
         "meta": data.get("meta", {})
     }
+
+
+async def read_from_cf_api(_f):
+    proxy_url = os.getenv('PROXY_URL', None)
+    cache_dir = os.getenv('CACHE_DIR', './cache')
+    if not os.path.exists(cache_dir):
+        os.makedirs(cache_dir)
+    
+    cache_file = os.path.join(cache_dir, f"{_f}.gz")
+    if os.path.exists(cache_file):
+        logging.info(f"Loading cache file: {cache_file}")
+        _res = await load_json_gzip_async(cache_file)
+    else:
+        with VT(
+            proxies=proxy_url,
+            timeout=10,
+            cf_end_point='https://vt.catflix.cn/'
+        ) as vt:
+            _res = vt.cf_api(input_str=_f)
+        await write_json_gzip_async(cache_file, _res)
+        logging.info(f"Writing cache file: {cache_file}")
+    return _res
+
     
 async def tip_fetch_file_cursor(q: str, dtype: str, cursor: str):
     proxy_url = os.getenv('PROXY_URL', None)  # 默认值是你原来硬编码的代理路径
@@ -232,63 +313,9 @@ async def tip_fetch_file_cursor(q: str, dtype: str, cursor: str):
         )
 
 
-async def tip_fetch_file_info(fileid: str):
-    proxy_url = os.getenv('PROXY_URL', None)
-    cache_dir = os.getenv('CACHE_DIR', './cache')
-    if not os.path.exists(cache_dir):
-        os.makedirs(cache_dir)
-    
-
-    def identify_hash(_fileid):
-        if re.match(r'^[a-f0-9]{32}$', _fileid, re.IGNORECASE):
-            return 'MD5'
-        elif re.match(r'^[a-f0-9]{40}$', _fileid, re.IGNORECASE):
-            return 'SHA-1'
-        elif re.match(r'^[a-f0-9]{64}$', _fileid, re.IGNORECASE):
-            return 'SHA-256'
-        else:
-            return None
-        
-    async def read_from_cf_api(_f):
-        cache_file = os.path.join(cache_dir, f"{_f}.gz")
-        if os.path.exists(cache_file):
-            logging.info(f"Loading cache file: {cache_file}")
-            _res = await load_json_gzip_async(cache_file)
-        else:
-            with VT(
-                proxies=proxy_url,
-                timeout=10,
-                cf_end_point='https://vt.catflix.cn/'
-            ) as vt:
-                _res = vt.cf_api(input_str=_f)
-            await write_json_gzip_async(cache_file, _res)
-            logging.info(f"Writing cache file: {cache_file}")
-        return _res
-    
+async def tip_fetch_file_info(fileid: str): 
     try:
-        res = None
-        _fileid_type = identify_hash(fileid)
-        if _fileid_type == 'SHA-256':
-            # 直接返回结果
-            res = await read_from_cf_api(fileid)
-        elif _fileid_type == 'MD5' or _fileid_type == 'SHA-1':
-            # 先搜索，再返回结果
-            search_res = await read_from_cf_api(fileid)
-            search_items = search_res.get("data", [])
-            if len(search_items) > 0:
-                true_fileid = search_items[0].get('id')
-                # 返回结果
-                res = await read_from_cf_api(true_fileid)
-            else:
-                raise HTTPException(
-                    status_code=404,
-                    detail={"error": "File not found", "status": "failed"}
-                )
-        else:
-            raise HTTPException(
-                status_code=404,
-                detail={"error": "Invalid fileid - must be MD5, SHA-1 or SHA-256", "status": "failed"}
-            )
+        res = await read_from_cf_api(fileid)
         
         # 若存在返回结果，进行返回结果处理
         final_res = {}
