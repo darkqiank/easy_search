@@ -145,6 +145,21 @@ class VT(Client):
                 data["attributes"]["last_analysis_results"] = filtered_results
             report['subdomains'] = res_json
 
+        async def _siblings(dm) -> None:
+            url = f'{self.vt_end_point}ui/domains/{dm}/siblings?relationships=resolutions'
+            impersonate, headers = random_vt_ua_headers()
+            res = await self._aget_url("GET", url, impersonate=impersonate, headers=headers)
+            res_json = orjson.loads(res)
+            for data in res_json.get("data", []):
+                # 确保 "attributes" 键存在，如果不存在，则跳过这个数据项
+                if "attributes" not in data:
+                    continue
+                filtered_results = {key: value for key, value in
+                                    data["attributes"].get("last_analysis_results", {}).items() if
+                                    value["category"] in ["suspicious", "malicious"]}
+                data["attributes"]["last_analysis_results"] = filtered_results
+            report['siblings'] = res_json
+
         async def _comments(dm) -> None:
             url = f'{self.vt_end_point}ui/domains/{dm}/comments?relationships=item%2Cauthor'
             impersonate, headers = random_vt_ua_headers()
@@ -158,6 +173,7 @@ class VT(Client):
             self.run_task_with_retries(_referrer_files, domain),
             self.run_task_with_retries(_communicating_files, domain),
             self.run_task_with_retries(_subdomains, domain),
+            self.run_task_with_retries(_siblings, domain),
             self.run_task_with_retries(_comments, domain)
         ]
         await asyncio.gather(*tasks, return_exceptions=True)
