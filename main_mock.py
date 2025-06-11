@@ -194,8 +194,83 @@ def generate_random_hash(hash_length):
 def generate_random_date():
     return int(time.time() - random.randint(0, 31536000 * 5))
 
+def random_domains_data(sample_count: int = 5):
+    data = []
+    for _ in range(sample_count):
+        _id = random.randint(1, 1000000)
+        sample = {
+            "id": f"example-{_id}.com",
+            "ioc": f"example-{_id}.com",
+            "attributes": {
+                "last_analysis_date": generate_random_date()
+            }
+        }
+        data.append(sample)
+    meta = {
+        "count": random.randint(100, 1000),
+        "cursor": generate_random_hash(20)
+    }
+    return {"data": data, "meta": meta}
+
+def random_ips_data(sample_count: int = 5):
+    data = []
+    for _ in range(sample_count):
+        _id = random.randint(1, 255)
+        sample = {
+            "id": f"192.168.1.{_id}",
+            "ioc": f"192.168.1.{_id}",
+            "attributes": {
+                "last_analysis_date": generate_random_date()
+            }
+        }
+        data.append(sample)
+    meta = {
+        "count": random.randint(100, 1000),
+        "cursor": generate_random_hash(20)
+    }
+    return {"data": data, "meta": meta}
+
+def random_urls_data(sample_count: int = 5):
+    data = []
+    for _ in range(sample_count):
+        _id = random.randint(1, 1000000)
+        sample = {
+            "id": generate_random_hash(40),
+            "ioc": f"http://example-{_id}.com",
+            "attributes": {
+                "last_analysis_date": generate_random_date()
+            }
+        }
+        data.append(sample)
+    meta = {
+        "count": random.randint(100, 1000),
+        "cursor": generate_random_hash(20)
+    }
+    return {"data": data, "meta": meta}
+
+
 @auth_router.get("/tip/vt/")
-async def search_tip_vt(q: str, dtype: str = 'communicating_files', cursor: Optional[str] = None):
+async def search_tip_vt(q: str, dtype: Optional[str] = None, cursor: Optional[str] = None):
+    if dtype is None:
+        sample_data = {
+            "meaningful_name": "example.exe",
+            "type_description": "Win32 EXE",
+            "type_tags": ["peexe", "executable"],
+            "type_extension": "exe",
+            "md5": generate_random_hash(32),
+            "sha1": generate_random_hash(40),
+            "sha256": generate_random_hash(64),
+            "imphash": generate_random_hash(32),
+            "ssdeep": generate_random_hash(32),
+            "size": 123456,
+            "last_submission_date": 1678886400,
+            "first_submission_date": 1678886400,
+            "contacted_domains": random_domains_data(5),
+            "contacted_ips": random_ips_data(5),
+            "contacted_urls": random_urls_data(5)
+        }
+        return sample_data
+
     if dtype == 'communicating_files':
         # 模拟的样本数量
         sample_count = 10
@@ -224,11 +299,52 @@ async def search_tip_vt(q: str, dtype: str = 'communicating_files', cursor: Opti
             "meta": meta
         }
         return response
+    elif dtype == 'contacted_domains':
+            # 模拟的样本数量
+            return random_domains_data(5)
+    elif dtype == 'contacted_ips':
+        return random_ips_data(5)
+    elif dtype == 'contacted_urls':
+        return random_urls_data(5)
     else:
         raise HTTPException(
             status_code=400,
             detail={"error": "输入参数错误，dtype必须为communicating_files", "status": "failed"}
         )
+    
+
+def random_risk_events_data(sample_count: int = 5):
+    datas = []
+    for _ in range(sample_count):
+        _id = random.randint(1, 1000000)
+        sample_event = {
+            "id": _id,
+            "insertedAt": "2025-06-09 20:00:06.979151+08",
+            "link": f"https://example.com/{_id}",
+            "meta": {
+                "desc": f"测试数据{_id}摘要",
+                "source": "测试源",
+                "source_type": random.choice(["biz", "blog", "twitter"])
+            }
+        }
+        datas.append(sample_event)
+    return datas
+
+@app.get("/tip/search-ioc/{ioc}")
+async def search_ioc_event(ioc: str, pn: int = 1, ps: int = 5):
+    return {
+        "success": True,
+        "data": random_risk_events_data(5),
+        "pagination": {
+            "totalPages": 2,
+            "totalRecords": 10,
+            "pageNumber": 1,
+            "pageSize": 5
+        },
+        "searchTerm": ioc,
+    }
+
+
 
 @auth_router.get("/tip/vt/file/{sha256}")
 async def search_file_vt(sha256: str):
@@ -237,10 +353,10 @@ async def search_file_vt(sha256: str):
             status_code=400,
             detail={"error": "Invalid SHA256 hash - must be 64 characters", "status": "failed"}
         )
-    
-    # 模拟的文件数据
+        # 模拟的文件数据
     new_data = MOCK_VT_FILE_DATA.copy()
     new_data['sha256'] = sha256
     return new_data
+
 
 app.include_router(auth_router)
