@@ -1,6 +1,6 @@
 from engines.client import Client
 from typing import Dict, List, Optional, Any
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse, parse_qs, unquote
 
 from engines.random_tools import random_impersonate, generate_random_public_ip
 
@@ -71,6 +71,26 @@ class DDGS_V2(Client):
             for key, value in self.elements_xpath.items():
                 data = " ".join(x.strip() for x in item.xpath(value))
                 result[key] = data
+            href = result["href"]
+            if href:
+                # href 样例：//duckduckgo.com/l/?uddg=https%3A%2F%2Fdfc%2Dstudio.com%2Fblog%2Fbaidu%2Dwangpan%2F&rut=c52e7fc6cebb823bae8053bb396148aa83f9dabc3f44b2b9a72606a4a0f7f81b
+                # 后处理一下href
+                # 提取uddg参数并转码
+                try:
+                    # 如果href是相对路径，添加协议前缀以便解析
+                    if href.startswith("//"):
+                        href = "https:" + href
+                    parsed_url = urlparse(href)
+                    query_params = parse_qs(parsed_url.query)
+                    if "uddg" in query_params:
+                        # parse_qs返回的是列表，取第一个值
+                        uddg_value = query_params["uddg"][0]
+                        # URL解码
+                        decoded_url = unquote(uddg_value)
+                        result["href"] = decoded_url
+                except Exception:
+                    # 如果解析失败，保持原始href不变
+                    pass
             results.append(result)
         return results
 
