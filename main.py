@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException, Response, APIRouter, Depends,  Reque
 import gzip
 import json
 import orjson
-from engines import DDGS, BING, GITHUB, VT, URLRead
+from engines import BING, GITHUB, VT, URLRead, DDGS_V2 as DDGS
 from typing import Optional
 import os
 import random
@@ -351,6 +351,7 @@ async def tip_fetch_file_info(fileid: str):
 
 @auth_router.get("/tip/vt/file/{sha256}")
 async def search_file_vt(sha256: str):
+    logging.info(f"api: /tip/vt/file/: {sha256}")
     proxy_url = os.getenv('PROXY_URL', None)
     cache_dir = os.getenv('CACHE_DIR', './cache')
     if not os.path.exists(cache_dir):

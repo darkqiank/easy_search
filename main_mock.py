@@ -313,8 +313,9 @@ async def search_tip_vt(q: str, dtype: Optional[str] = None, cursor: Optional[st
         )
     
 
-def random_risk_events_data(sample_count: int = 5):
+def random_risk_events_data(sample_count: int = 5, source_types: Optional[str] = None):
     datas = []
+    sources = source_types.split(',') if source_types else ["biz", "blog", "twitter"]
     for _ in range(sample_count):
         _id = random.randint(1, 1000000)
         sample_event = {
@@ -324,22 +325,25 @@ def random_risk_events_data(sample_count: int = 5):
             "meta": {
                 "desc": f"测试数据{_id}摘要",
                 "source": "测试源",
-                "source_type": random.choice(["biz", "blog", "twitter"])
+                "source_type": random.choice(sources)
             }
         }
         datas.append(sample_event)
     return datas
 
-@app.get("/tip/search-ioc/{ioc}")
-async def search_ioc_event(ioc: str, pn: int = 1, ps: int = 5):
+@app.get("/tip/search-ioc")
+async def search_ioc_event(ioc: str, source_types: Optional[str] = None, pn: int = 1, ps: int = 5):
+    if pn * ps > 10:
+        # 如果总数大于10，则pn为整除10/ps
+        pn = int(10/ps)
     return {
         "success": True,
-        "data": random_risk_events_data(5),
+        "data": random_risk_events_data(5, source_types),
         "pagination": {
             "totalPages": 2,
             "totalRecords": 10,
-            "pageNumber": 1,
-            "pageSize": 5
+            "pageNumber": pn,
+            "pageSize": ps
         },
         "searchTerm": ioc,
     }

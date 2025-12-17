@@ -31,7 +31,7 @@ class AsyncClient:
             proxies=self.proxies,
             timeout=timeout,
             impersonate="chrome",
-            allow_redirects=False,
+            allow_redirects=True,
             verify=False
         )
         # 获取当前操作系统

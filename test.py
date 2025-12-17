@@ -1,8 +1,22 @@
-from engines import DDGS
+# from engines import DDGS
 
-with DDGS(proxies="socks5://127.0.0.1:10808", timeout=10,
+# with DDGS(proxies="socks5://127.0.0.1:10808", timeout=10,
+#           ddgs_end_point='https://ddgs.catflix.cn',
+#           ddgslink_end_point='https://ddgslink.catflix.cn') as ddgs:
+#     for r in ddgs.text('xiaoniu321.com',
+#                        max_results=10,
+#                        # region='wt-wt',
+#                         region='cn-zh'
+#                        ):
+#         print(r)
+
+
+from engines import DDGS_V2 as DDGS
+
+with DDGS(proxies="socks5://127.0.0.1:10808", 
+        #   ddgs_end_point='https://proxy.451964719.xyz/proxy/https://html.duckduckgo.com',
           ddgs_end_point='https://ddgs.catflix.cn',
-          ddgslink_end_point='https://ddgslink.catflix.cn') as ddgs:
+          timeout=10) as ddgs:
     for r in ddgs.text('xiaoniu321.com',
                        max_results=10,
                        # region='wt-wt',
