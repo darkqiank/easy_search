@@ -14,6 +14,7 @@ import tldextract
 import hashlib
 
 DEFAULT_API_KEY = os.getenv("DEFAULT_API_KEY", None)
+DEFAULT_CF_END_POINT = os.getenv("DEFAULT_CF_END_POINT", 'https://vt.451964719.xyz/')
 app = FastAPI()
 
 
@@ -274,7 +275,7 @@ async def read_from_cf_api(_f):
         with VT(
             proxies=proxy_url,
             timeout=10,
-            cf_end_point='https://vt.catflix.cn/'
+            cf_end_point=DEFAULT_CF_END_POINT
         ) as vt:
             _res = vt.cf_api(input_str=_f)
         await write_json_gzip_async(cache_file, _res)
@@ -287,7 +288,7 @@ async def tip_fetch_file_cursor(q: str, dtype: str, cursor: str):
     try:
         with VT(proxies=proxy_url,
                 timeout=10,
-                cf_end_point='https://vt.451964719.xyz/') as vt:
+                cf_end_point=DEFAULT_CF_END_POINT) as vt:
             res = vt.cf_api(input_str=q, dtype=dtype, cursor=cursor)
             if dtype == 'communicating_files':
                 info = res.get("communicating_files", {})
@@ -370,7 +371,7 @@ async def search_file_vt(sha256: str):
         else:
             with VT(proxies=proxy_url,
                     timeout=10,
-                    cf_end_point='https://vt.catflix.cn/') as vt:
+                    cf_end_point=DEFAULT_CF_END_POINT) as vt:
                 res = vt.cf_api(input_str=sha256)
                 if not res:
                     raise HTTPException(

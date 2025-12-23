@@ -21,11 +21,14 @@ for i in range(1):
     start_time = time.time()
     with VT(
             proxies="socks5://127.0.0.1:10808",
-            timeout=10, vt_end_point=get_rand_vt_end_point()) as vt:
+            timeout=10, 
+            vt_end_point=get_rand_vt_end_point(),
+            cf_end_point='https://vtlb.451964719.xyz/'
+            ) as vt:
         # res = vt.api(input_str='413d0aacddad41105f9f04de12cae9420919083796ed856df47ee2c7b3767fda')
         # res = vt.cf_api(input_str='413d0aacddad41105f9f04de12cae9420919083796ed856df47ee2c7b3767fda')
         res = vt.cf_api(input_str='baidu.com')
-        print(res)
+        # print(res)
         # res = vt.api(input_str='baidu.com')
         # res = vt.cf_api(input_str='baidu.com')
         # res = vt.api(input_str='comments')
