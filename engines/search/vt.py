@@ -369,6 +369,41 @@ class VT(Client):
             report['ip_traffic'] = ip_traffic_list
             report['dns_lookups'] = dns_lookups_list
 
+        async def _behaviour_mbc_trees(_file) -> None:
+            url = f'{self.vt_end_point}ui/files/{_file}/behaviours_mbc_trees'
+            impersonate, headers = random_vt_ua_headers()
+            res = await self._aget_url("GET", url, impersonate=impersonate, headers=headers)
+            res_json = orjson.loads(res)
+            report['behaviour_mbc_trees'] = res_json
+
+        async def _execution_parents(_file) -> None:
+            url = f'{self.vt_end_point}ui/files/{_file}/execution_parents'
+            impersonate, headers = random_vt_ua_headers()
+            res = await self._aget_url("GET", url, impersonate=impersonate, headers=headers)
+            res_json = orjson.loads(res)
+            report['execution_parents'] = res_json
+
+        async def _pe_resource_parents(_file) -> None:
+            url = f'{self.vt_end_point}ui/files/{_file}/pe_resource_parents'
+            impersonate, headers = random_vt_ua_headers()
+            res = await self._aget_url("GET", url, impersonate=impersonate, headers=headers)
+            res_json = orjson.loads(res)
+            report['pe_resource_parents'] = res_json
+
+        async def _bundled_files(_file) -> None:
+            url = f'{self.vt_end_point}ui/files/{_file}/bundled_files'
+            impersonate, headers = random_vt_ua_headers()
+            res = await self._aget_url("GET", url, impersonate=impersonate, headers=headers)
+            res_json = orjson.loads(res)
+            report['bundled_files'] = res_json
+
+        async def _pe_resource_children(_file) -> None:
+            url = f'{self.vt_end_point}ui/files/{_file}/pe_resource_children'
+            impersonate, headers = random_vt_ua_headers()
+            res = await self._aget_url("GET", url, impersonate=impersonate, headers=headers)
+            res_json = orjson.loads(res)
+            report['pe_resource_children'] = res_json
+
         tasks = [
             self.run_task_with_retries(_analyse, file),
             self.run_task_with_retries(_contacted_urls, file),
@@ -376,7 +411,12 @@ class VT(Client):
             self.run_task_with_retries(_contacted_ips, file),
             self.run_task_with_retries(_comments, file),
             self.run_task_with_retries(_behaviour, file),
-            self.run_task_with_retries(_file_behaviour, file)
+            self.run_task_with_retries(_file_behaviour, file),
+            self.run_task_with_retries(_behaviour_mbc_trees, file),
+            self.run_task_with_retries(_execution_parents, file),
+            self.run_task_with_retries(_pe_resource_parents, file),
+            self.run_task_with_retries(_bundled_files, file),
+            self.run_task_with_retries(_pe_resource_children, file),
         ]
 
         await asyncio.gather(*tasks, return_exceptions=True)
@@ -449,6 +489,11 @@ class VT(Client):
                     "behaviour": f"/ui/files/{input_str}/behaviour_mitre_trees",
                     "file_behaviour": f"/ui/files/{input_str}/behaviours?limit=40",
                     "comments": f"/ui/files/{input_str}/comments?relationships=item%2Cauthor",
+                    "behaviour_mbc_trees": f"/ui/files/{input_str}/behaviours_mbc_trees",
+                    "execution_parents": f"/ui/files/{input_str}/execution_parents",
+                    "pe_resource_parents": f"/ui/files/{input_str}/pe_resource_parents",
+                    "bundled_files": f"/ui/files/{input_str}/bundled_files",
+                    "pe_resource_children": f"/ui/files/{input_str}/pe_resource_children",
                 }
 
         if dtype is None:
