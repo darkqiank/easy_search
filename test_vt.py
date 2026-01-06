@@ -3,7 +3,6 @@ import json
 import time
 import random
 
-
 def get_rand_vt_end_point():
     vt_end_points = ["https://www.virustotal.com/",
                      "https://vtfastlycdn.451964719.xyz/",
@@ -26,13 +25,15 @@ for i in range(1):
             cf_end_point='https://vtlb.451964719.xyz/'
             ) as vt:
         # res = vt.api(input_str='413d0aacddad41105f9f04de12cae9420919083796ed856df47ee2c7b3767fda')
-        # res = vt.cf_api(input_str='413d0aacddad41105f9f04de12cae9420919083796ed856df47ee2c7b3767fda')
-        res = vt.cf_api(input_str='baidu.com')
+        res = vt.cf_api(input_str='413d0aacddad41105f9f04de12cae9420919083796ed856df47ee2c7b3767fda')
+        # res = vt.cf_api(input_str='baidu.com')
         # print(res)
         # res = vt.api(input_str='baidu.com')
         # res = vt.cf_api(input_str='baidu.com')
         # res = vt.api(input_str='comments')
         with open('vt.json', 'w', encoding='utf-8') as f:
             json.dump(res, f, ensure_ascii=False, indent=4)
+
+    
     end_time = time.time()
     print(f"Total time taken: {end_time-start_time} seconds")

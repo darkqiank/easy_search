@@ -88,10 +88,10 @@ class DDGS_V2(Client):
                         # URL解码
                         decoded_url = unquote(uddg_value)
                         result["href"] = decoded_url
+                        results.append(result)
                 except Exception:
                     # 如果解析失败，保持原始href不变
                     pass
-            results.append(result)
         return results
 
 
