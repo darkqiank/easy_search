@@ -1,5 +1,5 @@
 import json
-from engines.search.vt_parser import extract_extended_vt_data
+from engines.search.vt_parser import extract_extended_vt_data, push_parsed_result_to_es, _get_es_client
 
 def summarize_json(data, key_threshold=40):
     """
@@ -55,3 +55,6 @@ extended_data = extract_extended_vt_data(raw_data)
 
 with open("vt_extended_data.json", 'w', encoding='utf-8') as f:
     json.dump(extended_data, f, indent=4, ensure_ascii=False)
+
+es_client = _get_es_client()
+push_parsed_result_to_es(extended_data, es_client=es_client)

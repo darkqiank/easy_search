@@ -38,6 +38,278 @@ def _get_es_client() -> Elasticsearch:
     _es_client = Elasticsearch(**config)
     return _es_client
 
+
+def get_index_mapping() -> Dict[str, Any]:
+    """
+    定义VT解析结果的ES索引映射。
+    
+    核心优化：
+    1. 命令行、路径等字段使用 wildcard 类型支持完整字符串搜索
+    2. 同时保留 text 类型的子字段支持分词搜索
+    3. 使用 keyword 子字段支持精确匹配和聚合
+    
+    Returns:
+        索引映射配置字典
+    """
+    return {
+        "settings": {
+            "number_of_shards": 1,
+            "number_of_replicas": 1,
+            "analysis": {
+                "analyzer": {
+                    "path_analyzer": {
+                        "type": "custom",
+                        "tokenizer": "path_tokenizer",
+                        "filter": ["lowercase"]
+                    }
+                },
+                "tokenizer": {
+                    "path_tokenizer": {
+                        "type": "path_hierarchy",
+                        "delimiter": "/"
+                    }
+                }
+            }
+        },
+        "mappings": {
+            "properties": {
+                # 网络行为字段
+                "http_requests": {
+                    "type": "wildcard",  # 支持完整URL和命令搜索
+                    "fields": {
+                        "text": {"type": "text"},  # 分词搜索
+                        "keyword": {"type": "keyword", "ignore_above": 512}  # 精确匹配
+                    }
+                },
+                "dns_resolutions": {
+                    "type": "wildcard",
+                    "fields": {
+                        "text": {"type": "text"},
+                        "keyword": {"type": "keyword", "ignore_above": 256}
+                    }
+                },
+                "ip_traffic": {
+                    "type": "wildcard",
+                    "fields": {
+                        "keyword": {"type": "keyword", "ignore_above": 256}
+                    }
+                },
+                "memory_pattern_domains": {
+                    "type": "wildcard",
+                    "fields": {
+                        "keyword": {"type": "keyword", "ignore_above": 256}
+                    }
+                },
+                "memory_pattern_urls": {
+                    "type": "wildcard",
+                    "fields": {
+                        "text": {"type": "text"},
+                        "keyword": {"type": "keyword", "ignore_above": 512}
+                    }
+                },
+                
+                # 文件系统字段 - 使用path_hierarchy分词器
+                "files_opened": {
+                    "type": "wildcard",
+                    "fields": {
+                        "text": {"type": "text", "analyzer": "path_analyzer"},
+                        "keyword": {"type": "keyword", "ignore_above": 512}
+                    }
+                },
+                "files_written": {
+                    "type": "wildcard",
+                    "fields": {
+                        "text": {"type": "text", "analyzer": "path_analyzer"},
+                        "keyword": {"type": "keyword", "ignore_above": 512}
+                    }
+                },
+                "files_deleted": {
+                    "type": "wildcard",
+                    "fields": {
+                        "text": {"type": "text", "analyzer": "path_analyzer"},
+                        "keyword": {"type": "keyword", "ignore_above": 512}
+                    }
+                },
+                "files_dropped": {
+                    "type": "wildcard",
+                    "fields": {
+                        "text": {"type": "text", "analyzer": "path_analyzer"},
+                        "keyword": {"type": "keyword", "ignore_above": 512}
+                    }
+                },
+                
+                # 注册表字段
+                "registry_opened": {
+                    "type": "wildcard",
+                    "fields": {
+                        "text": {"type": "text"},
+                        "keyword": {"type": "keyword", "ignore_above": 512}
+                    }
+                },
+                "registry_set": {
+                    "type": "wildcard",
+                    "fields": {
+                        "text": {"type": "text"},
+                        "keyword": {"type": "keyword", "ignore_above": 512}
+                    }
+                },
+                "registry_deleted": {
+                    "type": "wildcard",
+                    "fields": {
+                        "text": {"type": "text"},
+                        "keyword": {"type": "keyword", "ignore_above": 512}
+                    }
+                },
+                
+                # 进程和命令字段 - 关键优化点
+                "processes_created": {
+                    "type": "wildcard",  # 支持通配符搜索
+                    "fields": {
+                        "text": {"type": "text"},
+                        "keyword": {"type": "keyword", "ignore_above": 512}
+                    }
+                },
+                "services_started": {
+                    "type": "wildcard",
+                    "fields": {
+                        "text": {"type": "text"},
+                        "keyword": {"type": "keyword", "ignore_above": 256}
+                    }
+                },
+                "processes_tree": {
+                    "type": "wildcard",
+                    "fields": {
+                        "text": {"type": "text"},
+                        "keyword": {"type": "keyword", "ignore_above": 256}
+                    }
+                },
+                "processes_terminated": {
+                    "type": "wildcard",
+                    "fields": {
+                        "text": {"type": "text"},
+                        "keyword": {"type": "keyword", "ignore_above": 256}
+                    }
+                },
+                "command_executions": {
+                    "type": "wildcard",  # 命令执行字段 - 核心优化
+                    "fields": {
+                        "text": {"type": "text"},
+                        "keyword": {"type": "keyword", "ignore_above": 1024}
+                    }
+                },
+                
+                # 同步对象字段
+                "mutexes": {
+                    "type": "wildcard",
+                    "fields": {
+                        "keyword": {"type": "keyword", "ignore_above": 256}
+                    }
+                },
+                
+                # 模块和高亮字段
+                "modules_loaded": {
+                    "type": "wildcard",
+                    "fields": {
+                        "text": {"type": "text", "analyzer": "path_analyzer"},
+                        "keyword": {"type": "keyword", "ignore_above": 512}
+                    }
+                },
+                "calls_highlighted": {
+                    "type": "text",
+                    "fields": {
+                        "keyword": {"type": "keyword", "ignore_above": 512}
+                    }
+                },
+                "text_highlighted": {
+                    "type": "text",
+                    "fields": {
+                        "keyword": {"type": "keyword", "ignore_above": 512}
+                    }
+                },
+                
+                # 基础信息嵌套字段
+                "basic_info": {
+                    "properties": {
+                        "hashes": {
+                            "properties": {
+                                "md5": {"type": "keyword"},
+                                "sha1": {"type": "keyword"},
+                                "sha256": {"type": "keyword"},
+                                "ssdeep": {"type": "keyword"},
+                                "tlsh": {"type": "keyword"}
+                            }
+                        },
+                        "file_metadata": {
+                            "properties": {
+                                "file_names": {"type": "keyword"},
+                                "file_size": {"type": "long"},
+                                "file_type": {"type": "keyword"},
+                                "magic_header": {"type": "text"},
+                                "trid": {"type": "keyword"},
+                                "tags": {"type": "keyword"},
+                                "first_submission": {"type": "date"},
+                                "last_analysis": {"type": "date"}
+                            }
+                        }
+                    }
+                },
+                
+                # MITRE ATT&CK 字段
+                "mitre_attack": {
+                    "properties": {
+                        "tactics": {"type": "keyword"},
+                        "technique_ids": {"type": "keyword"},
+                        "techniques_details": {
+                            "properties": {
+                                "id": {"type": "keyword"},
+                                "name": {"type": "text"}
+                            }
+                        }
+                    }
+                },
+                
+                # 索引时间
+                "indexed_at": {"type": "date"}
+            }
+        }
+    }
+
+
+def ensure_index_exists(es_client: Optional[Elasticsearch] = None, 
+                       recreate: bool = False) -> bool:
+    """
+    确保ES索引存在且映射正确。
+    
+    Args:
+        es_client: ES客户端实例
+        recreate: 是否重新创建索引（会删除现有数据）
+        
+    Returns:
+        操作是否成功
+    """
+    client = es_client or _get_es_client()
+    
+    try:
+        index_exists = client.indices.exists(index=ES_INDEX)
+        
+        if recreate and index_exists:
+            logger.warning(f"正在删除现有索引: {ES_INDEX}")
+            client.indices.delete(index=ES_INDEX)
+            index_exists = False
+        
+        if not index_exists:
+            logger.info(f"创建索引: {ES_INDEX}")
+            mapping = get_index_mapping()
+            client.indices.create(index=ES_INDEX, body=mapping)
+            logger.info(f"索引创建成功: {ES_INDEX}")
+        else:
+            logger.info(f"索引已存在: {ES_INDEX}")
+            
+        return True
+    except Exception as e:
+        logger.error(f"索引操作失败: {e}")
+        return False
+
 def extract_basic_and_mitre(data):
     attrs = data.get('analyse', {}).get('data', {}).get('attributes', {})
 
@@ -201,13 +473,14 @@ def extract_extended_vt_data(data):
 
     basic_and_mitre = extract_basic_and_mitre(data)
     # 转换为列表以便JSON序列化
-    output = {k: list(v) for k, v in extracted.items()}
+    output: Dict[str, Any] = {k: sorted([x for x in v if x]) for k, v in extracted.items()}
     output.update(basic_and_mitre)
     return output
 
 
 def push_parsed_result_to_es(parsed_data: Dict[str, Any], doc_id: Optional[str] = None,
-                             es_client: Optional[Elasticsearch] = None) -> Dict[str, Any]:
+                             es_client: Optional[Elasticsearch] = None,
+                             ensure_mapping: bool = True) -> Dict[str, Any]:
     """
     将解析出的VT数据推送到Elasticsearch。
 
@@ -215,6 +488,7 @@ def push_parsed_result_to_es(parsed_data: Dict[str, Any], doc_id: Optional[str] 
         parsed_data: extract_extended_vt_data 的结构化结果
         doc_id: 指定ES文档ID，默认使用样本SHA256/MD5
         es_client: 自定义Elasticsearch客户端，便于测试
+        ensure_mapping: 是否自动确保索引映射正确（首次调用时）
 
     Returns:
         ES index操作的响应
@@ -223,13 +497,17 @@ def push_parsed_result_to_es(parsed_data: Dict[str, Any], doc_id: Optional[str] 
         raise ValueError("parsed_data 不能为空")
 
     client = es_client or _get_es_client()
+    
+    # 确保索引存在且映射正确
+    if ensure_mapping:
+        ensure_index_exists(es_client=client, recreate=False)
 
     if not doc_id:
         hashes = parsed_data.get('basic_info', {}).get('hashes', {}) if isinstance(parsed_data, dict) else {}
         doc_id = hashes.get('sha256') or hashes.get('md5')
 
     document = parsed_data.copy()
-    document['indexed_at'] = datetime.datetime.utcnow().isoformat()
+    document['indexed_at'] = datetime.datetime.now(datetime.UTC).isoformat()
 
     try:
         response = client.index(index=ES_INDEX, id=doc_id, document=document)
