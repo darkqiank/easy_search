@@ -25,6 +25,8 @@ password = os.getenv('DB_PASSWORD')
 host = os.getenv('DB_HOST')
 port = os.getenv('DB_PORT')
 
+proxy = os.getenv('FETCH_PROXY', "http://127.0.0.1:7890")
+
 # PostgreSQL 连接配置
 # conn = psycopg2.connect(
 #     dbname=dbname,
@@ -68,12 +70,12 @@ try:
     # 创建游标对象
     cur = conn.cursor()
     res = []
-    with VT(proxies="socks5://127.0.0.1:10808", timeout=20, vt_end_point="https://www.virustotal.com/") as vt:
+    with VT(proxies=proxy, timeout=20, vt_end_point="https://www.virustotal.com/") as vt:
         res.extend(vt.api(input_str="comments"))
 
     for user in users:
         print(user)
-        with VT(proxies="socks5://127.0.0.1:10808", timeout=20, vt_end_point="https://www.virustotal.com/") as vt:
+        with VT(proxies=proxy, timeout=20, vt_end_point="https://www.virustotal.com/") as vt:
             res.extend(vt.api(input_str=user))
 
     for record in res:
@@ -140,7 +142,7 @@ def process_src_id(src_id):
         if exists:
             print(f"src_id {src_id} 已存在，跳过")
         else:
-            with VT(proxies="socks5://127.0.0.1:10808", timeout=10, vt_end_point=get_rand_vt_end_point()) as vt:
+            with VT(proxies=proxy, timeout=10, vt_end_point=get_rand_vt_end_point()) as vt:
                 res = vt.api(input_str=src_id)
                 cur.execute(
                     """
