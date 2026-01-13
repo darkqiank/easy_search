@@ -86,7 +86,8 @@ class AsyncClient:
             if "time" in str(ex).lower():
                 raise TimeoutException(f"{type(ex).__name__}: {ex}") from ex
             raise ClientSearchException(f"{type(ex).__name__}: {ex}") from ex
-        print(f"_aget_url() {resp.url} {resp.status_code} {resp.elapsed:.2f} {len(resp_content)}")
+        # print(f"_aget_url() {resp.url} {resp.status_code} {resp.elapsed:.2f} {len(resp_content)}")
+        print(f"_aget_url() {resp.url} {resp.status_code} {resp.elapsed} {len(resp_content)}")
         if resp.status_code in (200, 302):
             return resp_content
         if resp.status_code in (202, 301, 403, 429):
